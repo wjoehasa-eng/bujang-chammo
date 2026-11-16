@@ -317,9 +317,7 @@
   }
 
   function rehNextActions(v) {
-    var list = VERDICT_NEXT[v.level].slice();
-    if (v.level === 2) list.unshift('확인 전에는 담임·학부모에게 "확정"으로 말하지 않기');
-    return list;
+    return VERDICT_NEXT[v.level].slice();
   }
 
   function rehSummaryLine(title, v) {
