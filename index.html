@@ -1,0 +1,2696 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>부장 참모 — 학년부장 실전 데스크</title>
+<meta name="description" content="처음 맡은 학년부장을 위한 실전 데스크. 즉답 보류, 미결 사안 트래커, 상황별 판단 순서와 완성 문구, 회의 확정 공지, 이지에듀 편성 체크리스트.">
+<meta name="theme-color" content="#123f5a" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c1013" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="부장 참모">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23123f5a'/%3E%3Cpath d='M16 6l6.5 19L16 20.4 9.5 25z' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+/* 부장 참모 — 디자인 시스템 */
+:root{
+  --bg:#f1f4f5; --bg2:#e9edef; --card:#ffffff; --card2:#f7f9fa;
+  --ink:#121a20; --ink2:#35434e; --sub:#66747f; --faint:#8b979f;
+  --line:#dfe5e8; --line2:#edf1f3;
+  --acc:#123f5a; --acc-ink:#0c2f44; --acc-fg:#ffffff; --acc-soft:#e6eef3;
+  --amber:#8a5a05; --amber-bg:#fdf3dc; --amber-line:#f0dcae;
+  --danger:#a92c22; --danger-bg:#fcecea; --ok:#146a4c; --ok-bg:#e5f3ec;
+  --c0:#9c3a52; --c1:#8a5a05; --c2:#265d8c; --c3:#12695a; --c4:#5d4796; --c5:#7a4d8f; --c6:#4a5a66;
+  --shadow:0 1px 2px rgba(16,30,40,.05), 0 6px 18px -12px rgba(16,30,40,.22);
+  --shadow-lg:0 24px 60px -24px rgba(10,25,35,.35);
+  --r:14px; --r-lg:18px;
+  color-scheme:light;
+}
+html[data-theme="dark"]{
+  --bg:#0c1013; --bg2:#0a0d10; --card:#141a1f; --card2:#181f25;
+  --ink:#e9eef2; --ink2:#c3ced6; --sub:#93a1ab; --faint:#76848e;
+  --line:#26313a; --line2:#1e272e;
+  --acc:#8fbdd8; --acc-ink:#a9cfe5; --acc-fg:#0b2433; --acc-soft:#16272f;
+  --amber:#e9bf74; --amber-bg:#2a2113; --amber-line:#40331b;
+  --danger:#f0938a; --danger-bg:#2c1715; --ok:#74cba7; --ok-bg:#12261e;
+  --c0:#e894a6; --c1:#e0b565; --c2:#8db9dd; --c3:#6dc7b4; --c4:#b3a0e0; --c5:#c6a6e0; --c6:#9db0bd;
+  --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 24px 60px -24px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:400 15px/1.62 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic","Segoe UI",system-ui,sans-serif;
+  letter-spacing:-.01em;
+  -webkit-tap-highlight-color:transparent;
+  padding-bottom:calc(74px + env(safe-area-inset-bottom,0px));
+}
+h1,h2,h3,h4,p,ul,ol{margin:0}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+::selection{background:var(--acc-soft)}
+:focus-visible{outline:2.5px solid var(--acc);outline-offset:2px;border-radius:6px}
+
+/* ---------------------------------------------------------------- 레이아웃 */
+.rail{display:none}
+.main{max-width:1180px;margin:0 auto;padding:18px 16px 40px}
+@media (min-width:980px){
+  body{padding-bottom:40px}
+  .rail{
+    display:flex;flex-direction:column;gap:22px;
+    position:fixed;inset:0 auto 0 0;width:252px;padding:calc(24px + env(safe-area-inset-top,0px)) 16px 20px;
+    background:var(--card);border-right:1px solid var(--line);z-index:20;
+  }
+  .main{margin-left:252px;max-width:1120px;padding:30px 36px 80px}
+}
+.brand{display:flex;align-items:center;gap:11px;padding:2px 8px}
+.brand svg{flex:none}
+.brand b{display:block;font-size:16.5px;font-weight:800;letter-spacing:-.03em;line-height:1.25}
+.brand span{display:block;font-size:11px;color:var(--sub);letter-spacing:.02em}
+.railnav{display:flex;flex-direction:column;gap:3px}
+.railnav button{
+  display:flex;align-items:center;gap:11px;text-align:left;width:100%;
+  padding:10px 11px;border-radius:10px;color:var(--ink2);font-size:14px;font-weight:600;
+}
+.railnav button .ico{font-size:15px;width:20px;text-align:center;opacity:.8}
+.railnav button small{display:block;font-size:11px;font-weight:400;color:var(--faint);letter-spacing:0}
+.railnav button:hover{background:var(--card2)}
+.railnav button[aria-current="page"]{background:var(--acc-soft);color:var(--acc);}
+.railnav button[aria-current="page"] small{color:var(--acc);opacity:.75}
+.railfoot{margin-top:auto;display:flex;flex-direction:column;gap:10px;padding:0 4px}
+.railfoot .sync{font-size:11.5px;color:var(--sub);display:flex;align-items:center;gap:6px}
+.railfoot .sync i{width:6px;height:6px;border-radius:50%;background:var(--faint);flex:none}
+.railfoot .sync.on i{background:var(--ok)}
+.railfoot .sync.err i{background:var(--danger)}
+.railfoot .tny{font-size:10.5px;color:var(--faint);line-height:1.5}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;padding-top:env(safe-area-inset-top,0px)}
+.topbar .brand{padding:0}
+@media (min-width:980px){.topbar{display:none}}
+.topbar .tools{display:flex;gap:8px}
+
+.tabhead{margin:2px 0 20px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;margin-bottom:7px}
+.tabhead h1{font-size:25px;font-weight:800;letter-spacing:-.035em;line-height:1.25}
+.tabhead p{color:var(--sub);font-size:13.5px;margin-top:6px;max-width:660px}
+@media (min-width:980px){.tabhead h1{font-size:29px}}
+.headrow{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+.bottomnav{
+  position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;
+  background:color-mix(in srgb,var(--card) 94%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.bottomnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 8px;color:var(--sub);font-size:10.5px;font-weight:600;letter-spacing:-.02em}
+.bottomnav button .ico{font-size:17px;line-height:1;opacity:.75}
+.bottomnav button[aria-current="page"]{color:var(--acc)}
+.bottomnav button[aria-current="page"] .ico{opacity:1}
+.bottomnav button[aria-current="page"]::after{content:"";position:absolute;top:0;width:26px;height:2.5px;border-radius:0 0 3px 3px;background:var(--acc)}
+.bottomnav button{position:relative}
+@media (min-width:980px){.bottomnav{display:none}}
+
+/* ---------------------------------------------------------------- 공통 요소 */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:18px}
+.card.flat{box-shadow:none}
+.card-pad-sm{padding:14px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.stack-lg{display:flex;flex-direction:column;gap:18px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.spread{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.grid{display:grid;gap:14px}
+.grid-2{display:grid;gap:14px}
+@media (min-width:760px){.grid-2{grid-template-columns:1fr 1fr}}
+@media (min-width:1080px){
+  .desk-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:18px;align-items:start}
+}
+.section-label{display:flex;align-items:center;gap:8px;font-size:10.5px;font-weight:800;letter-spacing:.13em;color:var(--faint);text-transform:uppercase;margin-bottom:9px}
+.section-label::after{content:"";flex:1;height:1px;background:var(--line)}
+.h2{font-size:16.5px;font-weight:800;letter-spacing:-.03em}
+.h3{font-size:14.5px;font-weight:700;letter-spacing:-.02em}
+.muted{color:var(--sub)}
+.tiny{font-size:12px;line-height:1.55;color:var(--sub)}
+.faint{color:var(--faint)}
+.mono{font-variant-numeric:tabular-nums}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:13.5px;font-weight:700;letter-spacing:-.02em;transition:background .12s,border-color .12s,transform .06s}
+.btn:hover{background:var(--card2)}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--acc);border-color:var(--acc);color:var(--acc-fg)}
+.btn-primary:hover{background:var(--acc-ink);border-color:var(--acc-ink)}
+html[data-theme="dark"] .btn-primary:hover{background:var(--acc);filter:brightness(1.1)}
+.btn-ghost{border-color:var(--line);background:transparent;color:var(--ink2)}
+.btn-sm{min-height:32px;padding:0 10px;font-size:12.5px;border-radius:8px}
+.btn-quiet{border:0;background:transparent;color:var(--acc);font-weight:700;padding:6px 4px;min-height:32px}
+.btn-danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 28%,var(--line))}
+.iconbtn{width:34px;height:34px;min-height:34px;padding:0;border-radius:9px;border:1px solid var(--line);background:var(--card);font-size:14px;color:var(--ink2)}
+.iconbtn:hover{background:var(--card2)}
+
+.chip{display:inline-flex;align-items:center;gap:5px;min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:12.5px;font-weight:700;color:var(--ink2);white-space:nowrap;letter-spacing:-.02em}
+.chip:hover{background:var(--card2)}
+.chip[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--acc-fg)}
+.chip-row{display:flex;gap:7px;overflow-x:auto;padding:1px 1px 3px;scrollbar-width:none}
+.chip-row::-webkit-scrollbar{display:none}
+
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;letter-spacing:-.01em;padding:2px 7px;border-radius:5px;background:var(--card2);color:var(--sub);border:1px solid var(--line2)}
+.badge-rule{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-line)}
+.badge-rule::before{content:"⚖";font-size:10px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--card2);color:var(--sub);border:1px solid var(--line2);font-variant-numeric:tabular-nums}
+.pill.due{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-line)}
+.pill.over{background:var(--danger-bg);color:var(--danger);border-color:color-mix(in srgb,var(--danger) 25%,transparent)}
+.pill.ok{background:var(--ok-bg);color:var(--ok);border-color:color-mix(in srgb,var(--ok) 25%,transparent)}
+.catdot{width:7px;height:7px;border-radius:50%;flex:none;display:inline-block}
+
+/* 입력 */
+.field{display:flex;flex-direction:column;gap:5px}
+.field label,.lbl{font-size:11.5px;font-weight:800;color:var(--sub);letter-spacing:-.01em}
+.input,.select,.textarea{
+  width:100%;background:var(--card);border:1px solid var(--line);border-radius:9px;
+  padding:9px 11px;font-size:14px;min-height:40px;color:var(--ink);
+}
+.textarea{min-height:76px;resize:vertical;line-height:1.55}
+.input:focus,.select:focus,.textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
+.input::placeholder,.textarea::placeholder{color:var(--faint)}
+.select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--sub) 50%),linear-gradient(135deg,var(--sub) 50%,transparent 50%);background-position:calc(100% - 15px) 17px,calc(100% - 10px) 17px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:30px}
+
+/* 체크박스 행 */
+.check{display:flex;align-items:flex-start;gap:11px;padding:9px 0;cursor:pointer;border-top:1px solid var(--line2)}
+.check:first-child{border-top:0}
+.check input{appearance:none;width:19px;height:19px;flex:none;margin:2px 0 0;border:1.5px solid color-mix(in srgb,var(--sub) 45%,transparent);border-radius:5px;background:var(--card);position:relative;cursor:pointer}
+.check input:checked{background:var(--acc);border-color:var(--acc)}
+.check input:checked::after{content:"";position:absolute;left:5.5px;top:2px;width:5px;height:9px;border:solid var(--acc-fg);border-width:0 2px 2px 0;transform:rotate(42deg)}
+.check span{font-size:13.5px;line-height:1.5;color:var(--ink2)}
+.check input:checked + span{color:var(--faint);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--faint) 60%,transparent)}
+
+.progress{height:5px;border-radius:99px;background:var(--line2);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--acc);border-radius:99px;transition:width .3s ease}
+
+/* 문구 블록 */
+.msg{border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:10px;background:var(--card);padding:11px 12px}
+.msg + .msg{margin-top:8px}
+.msg .mh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.msg .mk{font-size:10.5px;font-weight:800;letter-spacing:.04em;color:var(--acc);background:var(--acc-soft);border-radius:4px;padding:2px 6px}
+.msg .mt{font-size:13.5px;line-height:1.65;white-space:pre-wrap;color:var(--ink)}
+
+/* 리스트 */
+.item{display:flex;gap:11px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line2)}
+.item:first-child{border-top:0}
+.item .body{flex:1;min-width:0}
+.item .ttl{font-size:14px;font-weight:600;line-height:1.45;color:var(--ink);word-break:break-word}
+.item.done .ttl{color:var(--faint);text-decoration:line-through}
+.item .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.item .memo{font-size:12px;color:var(--sub);margin-top:6px;white-space:pre-wrap;line-height:1.5}
+.item .acts{display:flex;gap:4px;flex:none}
+
+/* 모달 시트 */
+.backdrop{position:fixed;inset:0;background:rgba(8,15,20,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);z-index:60;display:flex;align-items:flex-end;justify-content:center;animation:fade .16s ease}
+.sheet{background:var(--card);border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-width:720px;max-height:92vh;overflow:auto;box-shadow:var(--shadow-lg);animation:slide .22s cubic-bezier(.2,.8,.2,1);padding:0 0 env(safe-area-inset-bottom,0px)}
+.sheet-head{position:sticky;top:0;background:color-mix(in srgb,var(--card) 96%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:16px 18px 12px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;gap:12px;z-index:2}
+.sheet-head h2{font-size:17px;font-weight:800;letter-spacing:-.03em;line-height:1.35;flex:1}
+.sheet-body{padding:16px 18px 24px}
+@media (min-width:760px){
+  .backdrop{align-items:center;padding:24px}
+  .sheet{border-radius:18px;max-height:86vh}
+}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes slide{from{transform:translateY(18px);opacity:.6}to{transform:none;opacity:1}}
+
+/* 토스트 */
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,10px);background:var(--ink);color:var(--bg);font-size:13px;font-weight:700;padding:10px 16px;border-radius:999px;z-index:90;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;box-shadow:var(--shadow-lg);max-width:88vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (min-width:980px){.toast{bottom:28px}}
+
+.empty{padding:26px 12px;text-align:center;color:var(--faint);font-size:13px;line-height:1.6}
+
+/* ---------------------------------------------------------------- 데스크 */
+.hero-date{font-size:12.5px;font-weight:700;color:var(--sub);letter-spacing:.01em}
+.brake{background:linear-gradient(180deg,var(--acc-soft),transparent 120%);border:1px solid color-mix(in srgb,var(--acc) 18%,var(--line));border-radius:var(--r-lg);padding:16px 16px 14px}
+.brake .q3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 14px}
+.brake .q3 div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 10px}
+.brake .q3 b{display:flex;align-items:center;gap:6px;font-size:12.5px;letter-spacing:-.02em}
+.brake .q3 b i{font-style:normal;width:16px;height:16px;border-radius:50%;background:var(--acc);color:var(--acc-fg);font-size:10px;display:grid;place-items:center;font-weight:800}
+.brake .q3 span{display:block;font-size:11px;color:var(--sub);margin-top:4px;line-height:1.45}
+.holdrow{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid color-mix(in srgb,var(--acc) 10%,var(--line))}
+.holdrow .k{flex:none;font-size:10.5px;font-weight:800;color:var(--acc);width:64px;letter-spacing:-.01em}
+.holdrow .t{flex:1;font-size:13.5px;line-height:1.5;color:var(--ink)}
+.copy-mini{flex:none;display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:800;color:var(--acc);border:1px solid color-mix(in srgb,var(--acc) 25%,var(--line));background:var(--card);border-radius:7px;padding:5px 8px;min-height:30px}
+.copy-mini:hover{background:var(--acc-soft)}
+
+.statrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.stat{flex:1;min-width:82px;background:var(--card2);border:1px solid var(--line2);border-radius:10px;padding:9px 11px}
+.stat b{display:block;font-size:18px;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.stat span{font-size:10.5px;color:var(--sub);font-weight:700}
+.stat.warn b{color:var(--amber)}
+.stat.bad b{color:var(--danger)}
+
+.ckcard .ckhead{display:flex;align-items:center;gap:9px;margin-bottom:4px}
+.ckcard .ckhead h3{font-size:14.5px;font-weight:800;letter-spacing:-.02em;flex:1}
+.ckcard .ckhead small{display:block;font-size:11px;color:var(--faint);font-weight:500}
+.daily-reset{font-size:11px;color:var(--faint);margin-top:6px}
+
+/* ---------------------------------------------------------------- 플레이북 */
+.pb-tools{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.search-wrap{position:relative}
+.search-wrap input{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 13px 11px 36px;min-height:44px;font-size:14px}
+.search-wrap .ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--faint);font-size:14px;pointer-events:none}
+.pb-grid{display:grid;gap:10px}
+@media (min-width:840px){.pb-grid{grid-template-columns:1fr 1fr}}
+.pb-card{display:flex;flex-direction:column;gap:7px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px 14px 12px;box-shadow:var(--shadow);position:relative;transition:border-color .12s,transform .08s}
+.pb-card:hover{border-color:color-mix(in srgb,var(--acc) 40%,var(--line));transform:translateY(-1px)}
+.pb-card .ct{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;letter-spacing:.02em}
+.pb-card .tt{font-size:14.5px;font-weight:750;letter-spacing:-.025em;line-height:1.4;color:var(--ink)}
+.pb-card .ld{font-size:12.5px;color:var(--sub);line-height:1.5}
+.pb-card .ft{display:flex;align-items:center;gap:6px;margin-top:2px;color:var(--faint);font-size:11px;font-weight:700}
+.pb-card .nt{display:inline-flex;align-items:center;gap:4px;color:var(--ok);font-weight:800}
+.pb-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.crit{background:var(--acc-soft);border-radius:11px;padding:12px 13px;font-size:13.5px;line-height:1.62;font-weight:600;color:var(--ink)}
+.crit .lb{display:block;font-size:9.5px;font-weight:800;letter-spacing:.13em;color:var(--acc);margin-bottom:4px}
+.steps{list-style:none;padding:0;display:flex;flex-direction:column;gap:9px}
+.steps li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.6;color:var(--ink2)}
+.steps .n{flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--acc);color:var(--acc);font-size:10.5px;font-weight:800;display:grid;place-items:center;margin-top:1px}
+.dont{background:var(--danger-bg);border:1px solid color-mix(in srgb,var(--danger) 16%,transparent);border-radius:11px;padding:11px 12px}
+.dont .lb{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--danger);margin-bottom:6px;display:block}
+.dont ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px}
+.dont li{position:relative;padding-left:14px;font-size:13px;line-height:1.55;color:var(--ink2)}
+.dont li::before{content:"✕";position:absolute;left:0;top:0;font-size:10px;color:var(--danger);font-weight:800}
+.note-sec .nlist{display:flex;flex-direction:column;gap:7px;margin-top:9px}
+.note-item{background:var(--card2);border:1px solid var(--line2);border-radius:9px;padding:8px 10px;font-size:12.5px;line-height:1.55;display:flex;gap:8px;justify-content:space-between;align-items:flex-start}
+.note-item time{flex:none;font-size:10.5px;color:var(--faint);font-variant-numeric:tabular-nums}
+.principle-strip{display:flex;gap:9px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin:0 -2px}
+.principle-strip::-webkit-scrollbar{display:none}
+.pr-card{flex:none;width:196px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 12px}
+.pr-card b{display:block;font-size:12.5px;font-weight:800;letter-spacing:-.02em;line-height:1.4}
+.pr-card span{display:block;font-size:11px;color:var(--sub);margin-top:4px;line-height:1.45}
+.accordion{border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden}
+.accordion > summary{list-style:none;cursor:pointer;padding:13px 14px;display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:700;letter-spacing:-.02em}
+.accordion > summary::-webkit-details-marker{display:none}
+.accordion > summary::after{content:"＋";margin-left:auto;color:var(--faint);font-size:13px}
+.accordion[open] > summary::after{content:"－"}
+.accordion .abody{padding:0 14px 14px;font-size:13px;color:var(--ink2);line-height:1.6}
+.mind-item{padding:9px 0;border-top:1px solid var(--line2)}
+.mind-item:first-child{border-top:0;padding-top:0}
+.mind-item b{display:block;font-size:13px;font-weight:750;letter-spacing:-.02em}
+.mind-item span{display:block;font-size:12.5px;color:var(--sub);line-height:1.55;margin-top:3px}
+.phrase-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:7px 10px;font-size:12.5px;line-height:1.4;color:var(--ink2);text-align:left;min-height:34px}
+.phrase-pill:hover{background:var(--acc-soft);border-color:color-mix(in srgb,var(--acc) 30%,var(--line))}
+
+/* ---------------------------------------------------------------- 회의 */
+.step3{display:grid;gap:10px}
+@media (min-width:840px){.step3{grid-template-columns:repeat(3,1fr)}}
+.step3 .s{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px}
+.step3 .s .k{font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--acc);background:var(--acc-soft);border-radius:4px;padding:2px 6px;display:inline-block;margin-bottom:7px}
+.step3 .s b{display:block;font-size:13.5px;letter-spacing:-.02em;line-height:1.4}
+.step3 .s p{font-size:12px;color:var(--sub);line-height:1.55;margin-top:5px}
+.mrow{display:grid;grid-template-columns:1fr;gap:7px;padding:10px 0;border-top:1px solid var(--line2)}
+@media (min-width:700px){.mrow{grid-template-columns:76px minmax(0,1fr) 120px 118px 32px;align-items:center}}
+.mrow:first-of-type{border-top:0}
+.mrow .delrow{justify-self:end}
+.notice-preview{white-space:pre-wrap;font-size:13px;line-height:1.65;background:var(--card2);border:1px dashed var(--line);border-radius:10px;padding:12px;font-family:inherit;min-height:120px;width:100%;color:var(--ink);resize:vertical}
+.roadmap{display:flex;flex-direction:column;gap:0}
+.rm{position:relative;padding:0 0 16px 24px;border-left:1.5px solid var(--line);margin-left:6px}
+.rm:last-child{border-left-color:transparent;padding-bottom:0}
+.rm::before{content:"";position:absolute;left:-5.5px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--card);border:2px solid var(--acc)}
+.rm .when{font-size:10.5px;font-weight:800;letter-spacing:.05em;color:var(--acc)}
+.rm b{display:block;font-size:13.5px;font-weight:750;margin:2px 0 4px;letter-spacing:-.02em}
+.rm .rcheck{padding:5px 0}
+.rm .rcheck span{font-size:12.5px}
+.area{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.area summary{list-style:none;cursor:pointer;padding:12px 14px;display:flex;align-items:center;gap:9px}
+.area summary::-webkit-details-marker{display:none}
+.area summary .nm{flex:1;font-size:13.5px;font-weight:750;letter-spacing:-.02em}
+.area .abody{padding:0 14px 13px;border-top:1px solid var(--line2);padding-top:11px}
+.agrid{display:grid;gap:8px}
+@media (min-width:700px){.agrid{grid-template-columns:1fr 1fr}}
+.agrid div b{display:block;font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--faint);margin-bottom:2px}
+.agrid div span{font-size:12.5px;color:var(--ink2);line-height:1.5}
+.statussel{display:flex;gap:4px}
+.statussel button{font-size:10.5px;font-weight:800;padding:5px 8px;border-radius:6px;border:1px solid var(--line);color:var(--sub);background:var(--card);min-height:28px}
+.statussel button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--acc-fg)}
+.statussel button[aria-pressed="true"][data-st="done"]{background:var(--ok);border-color:var(--ok)}
+.statussel button[aria-pressed="true"][data-st="doing"]{background:var(--amber);border-color:var(--amber);color:var(--bg)}
+
+/* ---------------------------------------------------------------- 교육과정 */
+.curstep{border:1px solid var(--line);border-radius:12px;background:var(--card);margin-bottom:9px;overflow:hidden}
+.curstep summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:11px;padding:12px 14px}
+.curstep summary::-webkit-details-marker{display:none}
+.curno{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;background:var(--acc-soft);color:var(--acc);border:1.5px solid color-mix(in srgb,var(--acc) 35%,transparent)}
+.curstep.done .curno{background:var(--acc);color:var(--acc-fg);border-color:var(--acc)}
+.curstep .cti{flex:1;min-width:0}
+.curstep .cti b{display:block;font-size:13.5px;font-weight:750;letter-spacing:-.02em;line-height:1.4}
+.curstep .cti small{font-size:11px;color:var(--faint)}
+.curstep .cprog{flex:none;font-size:11px;font-weight:800;color:var(--sub);font-variant-numeric:tabular-nums}
+.curstep .cbody{padding:2px 14px 12px;border-top:1px solid var(--line2)}
+.curstep.is-bang{background:var(--amber-bg);border-color:var(--amber-line)}
+.curstep.is-bang .curno{background:var(--amber);border-color:var(--amber);color:#fff}
+html[data-theme="dark"] .curstep.is-bang .curno{color:#221a0b}
+.curstep.is-bang .cti b{color:var(--amber)}
+.curstep.is-bang .cbody{border-top-color:var(--amber-line)}
+.curtip{font-size:11.5px;color:var(--amber);background:color-mix(in srgb,var(--amber) 8%,transparent);border-radius:7px;padding:7px 9px;margin-top:8px;line-height:1.5}
+.cur-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+@media (min-width:700px){.cur-summary{grid-template-columns:repeat(4,1fr)}}
+.cur-stat{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 12px}
+.cur-stat b{display:block;font-size:19px;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.cur-stat span{font-size:10.5px;color:var(--sub);font-weight:700}
+.linkcard{background:linear-gradient(180deg,var(--acc-soft),transparent 140%);border:1px solid color-mix(in srgb,var(--acc) 18%,var(--line));border-radius:var(--r);padding:15px}
+.linkcard .saved{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12.5px;word-break:break-all}
+
+/* 설정 */
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-top:1px solid var(--line2)}
+.settings-row:first-child{border-top:0}
+.settings-row .desc{min-width:0}
+.settings-row b{display:block;font-size:13.5px;font-weight:750;letter-spacing:-.02em}
+.settings-row span{display:block;font-size:11.5px;color:var(--sub);line-height:1.5;margin-top:2px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex:none}
+.seg button{font-size:11.5px;font-weight:700;padding:7px 10px;color:var(--sub);min-height:32px}
+.seg button[aria-pressed="true"]{background:var(--acc);color:var(--acc-fg)}
+.snap{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line2);font-size:12.5px}
+.snap:first-child{border-top:0}
+.snap time{flex:1;font-variant-numeric:tabular-nums;color:var(--ink2)}
+.snap .kind{font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;background:var(--card2);color:var(--sub);border:1px solid var(--line2)}
+.syncbox{border:1px solid var(--line);border-radius:12px;padding:13px;background:var(--card2)}
+.syncbox .st{font-size:12px;color:var(--sub);margin-top:8px;min-height:18px;line-height:1.5}
+.syncbox .st.ok{color:var(--ok)}
+.syncbox .st.err{color:var(--danger)}
+.switch{position:relative;width:42px;height:24px;flex:none;border-radius:99px;background:var(--line);border:1px solid var(--line);transition:background .15s}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .15s}
+.switch[aria-checked="true"]{background:var(--ok);border-color:var(--ok)}
+.switch[aria-checked="true"]::after{transform:translateX(18px)}
+
+/* 트래커 체크박스 */
+.item > input.icheck{appearance:none;width:19px;height:19px;flex:none;margin:2px 0 0;border:1.5px solid color-mix(in srgb,var(--sub) 45%,transparent);border-radius:5px;background:var(--card);position:relative;cursor:pointer}
+.item > input.icheck:checked{background:var(--acc);border-color:var(--acc)}
+.item > input.icheck:checked::after{content:"";position:absolute;left:5.5px;top:2px;width:5px;height:9px;border:solid var(--acc-fg);border-width:0 2px 2px 0;transform:rotate(42deg)}
+.pb-card{font:inherit;color:inherit}
+
+@media (max-width:560px){
+  .brake .q3{grid-template-columns:1fr;gap:6px}
+  .brake .q3 div{display:flex;align-items:baseline;gap:8px;padding:8px 10px}
+  .brake .q3 b{flex:none;width:76px;font-size:12.5px}
+  .brake .q3 span{margin-top:0;font-size:11.5px}
+  .holdrow .k{width:56px;font-size:10px}
+  .holdrow .t{font-size:13px}
+  .copy-mini{padding:5px 7px}
+}
+
+.mind-note{background:var(--card2);border:1px dashed var(--line);border-radius:11px;padding:11px 12px}
+.mind-note .lb{display:block;font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--faint);margin-bottom:4px}
+.mind-note p{font-size:13px;line-height:1.6;color:var(--ink2)}
+.mind-note small{display:block;margin-top:5px;font-size:11px;font-weight:700;color:var(--c4)}
+
+@media (max-width:620px){
+  .mhead{grid-template-columns:1fr !important}
+}
+
+</style>
+</head>
+<body>
+
+<aside class="rail">
+  <div class="brand">
+    <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#123f5a"/><path d="M16 6l6.5 19L16 20.4 9.5 25z" fill="#fff"/></svg>
+    <div><b>부장 참모</b><span>학년부장 실전 데스크</span></div>
+  </div>
+  <nav class="railnav" aria-label="화면">
+    <button data-act="tab" data-tab="desk"><span class="ico">🎯</span><span>데스크<small>오늘의 지휘소</small></span></button>
+    <button data-act="tab" data-tab="playbook"><span class="ico">🛡️</span><span>실전 플레이북<small>상황·갈등·문구</small></span></button>
+    <button data-act="tab" data-tab="meeting"><span class="ico">📋</span><span>회의·연간<small>12학급 운영</small></span></button>
+    <button data-act="tab" data-tab="curric"><span class="ico">📚</span><span>교육과정<small>이지에듀 편성</small></span></button>
+  </nav>
+  <div style="height:1px;background:var(--line);margin:0 8px"></div>
+  <nav class="railnav" aria-label="설정">
+    <button data-act="tab" data-tab="settings"><span class="ico">⚙️</span><span>설정<small>백업·동기화</small></span></button>
+  </nav>
+  <div class="railfoot">
+    <div class="sync" id="railSync"><i></i><span>자동 동기화 꺼짐</span></div>
+    <div class="tny">기록은 이 기기와, 연결한 경우 본인의 구글 시트에만 저장됩니다.</div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#123f5a"/><path d="M16 6l6.5 19L16 20.4 9.5 25z" fill="#fff"/></svg>
+      <div><b>부장 참모</b><span>학년부장 실전 데스크</span></div>
+    </div>
+    <div class="tools">
+      <button class="iconbtn" data-act="theme-cycle" aria-label="밝게/어둡게">◐</button>
+    </div>
+  </div>
+
+  <!-- ============================================================ 데스크 -->
+  <section id="view-desk" hidden>
+    <div class="tabhead">
+      <div class="eyebrow">오늘의 지휘소</div>
+      <div class="headrow">
+        <div>
+          <h1>데스크</h1>
+          <p>급한 전화, 갑작스러운 지시, 머릿속에 남은 요청. 여기서 한 번 정리하고 하루를 시작하세요.</p>
+        </div>
+        <span class="pill hero-date" id="deskDate"></span>
+      </div>
+    </div>
+
+    <div class="brake">
+      <div class="spread">
+        <div>
+          <div class="section-label" style="color:var(--acc);margin-bottom:4px">10초 즉답 보류 브레이크</div>
+          <b class="h2">말하기 전 3문</b>
+        </div>
+        <span class="tag">즉답이 실수를 만든다</span>
+      </div>
+      <div class="q3">
+        <div><b><i>1</i>옳은가</b><span>사실인가? 추측인가?</span></div>
+        <div><b><i>2</i>필요한가</b><span>지금 말해야 하나?</span></div>
+        <div><b><i>3</i>친절한가</b><span>말투만 고칠 수 있나?</span></div>
+      </div>
+      <div id="holdList"></div>
+    </div>
+
+    <div class="desk-grid" style="margin-top:16px">
+      <div class="stack">
+        <div class="card">
+          <div class="spread" style="margin-bottom:12px">
+            <div>
+              <div class="section-label" style="margin-bottom:2px">미결 사안·요청</div>
+              <b class="h2">트래커</b>
+            </div>
+            <button class="btn btn-primary btn-sm" data-act="item-new">＋ 사안 적기</button>
+          </div>
+          <div class="statrow" id="deskStats" style="margin-bottom:12px"></div>
+          <div class="chip-row" id="trackFilters" style="margin-bottom:2px"></div>
+          <div id="trackList"></div>
+          <p class="tiny" style="margin-top:10px">머릿속에 있는 일은 반드시 샙니다. 담당과 기한을 적어 두면 퇴근이 가벼워집니다.</p>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card ckcard" id="ck-am"></div>
+        <div class="card ckcard" id="ck-pm"></div>
+        <p class="daily-reset">체크는 날짜별로 저장되고 다음 날 자동으로 새로 시작합니다. 오래된 체크는 자동으로 정리됩니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 플레이북 -->
+  <section id="view-playbook" hidden>
+    <div class="tabhead">
+      <div class="eyebrow">실전 플레이북</div>
+      <h1>상황·갈등·문구</h1>
+      <p>판단이 어려운 순간에 펼치세요. 기준 한 줄, 순서 세 줄, 바로 보낼 문장 세 개. 여기에 내 사례를 한 줄씩 쌓으면 내 매뉴얼이 됩니다.</p>
+    </div>
+
+    <div class="pb-tools">
+      <div class="search-wrap">
+        <span class="ic">⌕</span>
+        <input id="pbQ" data-act="pbq" type="search" placeholder="상황 검색 (예: 민원, 거절, 회의, 공문, 학폭)" aria-label="상황 검색">
+      </div>
+      <div class="chip-row" id="pbChips"></div>
+    </div>
+
+    <div class="spread" style="margin:2px 0 9px">
+      <div class="section-label" style="margin:0;flex:1">상황 카드</div>
+      <span class="tiny mono" id="pbCount"></span>
+    </div>
+    <div class="pb-grid" id="pbList"></div>
+
+    <div class="section-label" style="margin-top:24px">흔들릴 때 돌아갈 10원칙</div>
+    <div class="principle-strip" id="principleStrip"></div>
+
+    <details class="accordion" style="margin-top:20px">
+      <summary>동학년 스몰토크 — 짧게, 가볍게, 끝내는 말까지</summary>
+      <div class="abody">
+        <div class="section-label" style="margin-top:2px">짧게 끝내는 네 걸음</div>
+        <div id="talkRules"></div>
+        <div class="section-label" style="margin-top:14px">장면별 한마디</div>
+        <div class="chip-row" id="talkChips" style="margin-bottom:9px"></div>
+        <div id="talkBody"></div>
+        <div class="row" style="margin-top:10px"><button class="btn btn-sm btn-ghost" data-act="talk-random">아무거나 한마디</button></div>
+        <div id="talkRand" class="tiny" style="margin-top:8px"></div>
+        <p class="tiny" style="margin-top:14px"><b>피하면 편한 주제</b> · <span id="avoid"></span></p>
+      </div>
+    </details>
+
+    <details class="accordion" style="margin-top:10px">
+      <summary>함께 해내는 마음가짐 — 싫은 마음은 두고 행동만 고르기</summary>
+      <div class="abody" id="mindList"></div>
+    </details>
+  </section>
+
+  <!-- ============================================================ 회의 -->
+  <section id="view-meeting" hidden>
+    <div class="tabhead">
+      <div class="eyebrow">12학급 운영</div>
+      <h1>회의·연간</h1>
+      <p>회의는 초안으로 시작하고 한 줄 공지로 끝냅니다. 2~3월과 10대 업무 영역은 미리 표시해 두고 하나씩 지웁니다.</p>
+    </div>
+
+    <div class="card">
+      <div class="section-label">초안 중심 회의 진행기</div>
+      <div class="step3">
+        <div class="s"><span class="k">회의 전 · 하루 전</span><b>초안을 먼저 공유</b><p>안건, 내 제안, 오늘 정할 것 세 줄을 문서로 보냅니다. 읽고 온 사람이 있으면 회의가 절반 줄어듭니다.</p></div>
+        <div class="s"><span class="k">회의 중 · 20~30분</span><b>3분 설명 + 구체 질문</b><p>"어떻게 생각하세요" 대신 "A와 B 중 어느 쪽". 안건마다 결정만 빠르게.</p></div>
+        <div class="s"><span class="k">회의 후 · 당일</span><b>확정·보류·담당·기한</b><p>정한 것과 못 정한 것을 구분해 한 줄 공지. 담당과 기한이 없으면 그 결정은 사라집니다.</p></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="spread" style="margin-bottom:4px">
+        <div>
+          <div class="section-label" style="margin-bottom:2px">회의록 · 공지</div>
+          <b class="h2">확정사항 공지 만들기</b>
+        </div>
+        <button class="btn btn-sm btn-ghost" data-act="mrow-add">＋ 항목</button>
+      </div>
+      <p class="tiny" style="margin-bottom:10px">정한 내용을 적고 문구를 만들면 카톡방에 그대로 붙여 넣을 수 있습니다. 저장해 두면 다음 회의에서 이어집니다.</p>
+      <div class="grid mhead" style="grid-template-columns:1fr 1fr;gap:9px">
+        <div class="field"><label for="mDate">회의 날짜</label><input id="mDate" type="date" class="input" data-act="m-date"></div>
+        <div class="field"><label for="mName">이름</label><input id="mName" class="input" data-act="m-name" placeholder="학년 협의회 결과"></div>
+      </div>
+      <div class="lbl" style="margin:12px 0 2px">정한 것 / 보류한 것</div>
+      <div id="mRows"></div>
+      <div class="field" style="margin-top:10px"><label for="mMemo">안내 한 줄 (선택)</label><textarea id="mMemo" class="textarea" data-act="m-memo" style="min-height:54px" placeholder="예: 다음 협의는 11/25(화)입니다."></textarea></div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn btn-primary" data-act="m-gen">공지 문구 만들기</button>
+        <button class="btn btn-ghost" data-act="m-save">회의록에 저장</button>
+      </div>
+      <textarea id="mPreview" class="notice-preview" style="margin-top:12px" placeholder="문구를 만들면 여기에 나옵니다. 직접 고쳐도 됩니다." aria-label="공지 미리보기"></textarea>
+      <div class="row" style="justify-content:flex-end;margin-top:8px"><button class="copy-mini" data-act="m-copy">공지 복사</button></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="section-label">저장한 회의록</div>
+      <div id="mLog"></div>
+    </div>
+
+    <div class="grid-2" style="margin-top:14px;align-items:start">
+      <div class="card">
+        <div class="section-label">2~3월 학년 초 로드맵</div>
+        <div class="roadmap" id="roadmap"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-label">10대 업무 영역 마스터</div>
+        <p class="tiny" style="margin-bottom:10px">작년 부장이 없어도 굴러가게, 영역마다 확인할 것과 조심할 것을 붙여 뒀습니다. 상태와 메모는 이 기기에 저장됩니다.</p>
+        <div class="stack" id="areas" style="gap:8px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 교육과정 -->
+  <section id="view-curric" hidden>
+    <div class="tabhead">
+      <div class="eyebrow">이지에듀 편성</div>
+      <h1>교육과정</h1>
+      <p>1단계부터 순서대로 하면 됩니다. 3단계 뒤 단축수업 날짜를 먼저 확인해야 반별 시간표에서 되돌리지 않습니다.</p>
+    </div>
+
+    <div class="card">
+      <div class="spread">
+        <div>
+          <div class="section-label" style="margin-bottom:2px">편성 진행</div>
+          <b class="h2">학년 교육과정 체크</b>
+        </div>
+        <button class="btn btn-sm btn-ghost" data-act="cur-reset">체크 모두 지우기</button>
+      </div>
+      <div class="progress" style="margin:13px 0 12px"><i id="curBar" style="width:0"></i></div>
+      <div class="cur-summary" id="curSummary"></div>
+    </div>
+
+    <div id="curSteps" style="margin-top:14px"></div>
+
+    <div class="section-label" style="margin-top:22px">핵심 원칙 4가지</div>
+    <div class="grid-2" id="curPrinciples"></div>
+
+    <div class="grid-2" style="margin-top:14px">
+      <div class="card">
+        <div class="section-label">동학년 전달 체크리스트</div>
+        <div id="curHandoff"></div>
+      </div>
+      <div class="card">
+        <div class="section-label">마무리 점검</div>
+        <div id="curFinish"></div>
+        <p class="tiny" style="margin-top:9px">조정 후 이지에듀 업로드 → 연간시간표·연간시수표 출력. 중요사항은 색을 다르게 표시해 인쇄합니다.</p>
+      </div>
+    </div>
+
+    <div class="linkcard" style="margin-top:14px">
+      <div class="section-label" style="color:var(--acc)">내 활동별 시간표 시트</div>
+      <p class="tiny">동학년과 시수는 스프레드시트로 맞추는 경우가 많습니다. 학년 시트 주소를 저장해 두면 여기서 바로 엽니다. 주소는 이 기기(과 연결한 본인 시트)에만 저장되고 앱 코드에는 들어가지 않습니다.</p>
+      <div class="row" style="margin-top:9px;align-items:stretch">
+        <input id="curSheetUrl" class="input" style="flex:1;min-width:0" placeholder="https://docs.google.com/spreadsheets/…" aria-label="시트 주소">
+        <button class="btn btn-sm btn-primary" data-act="cur-sheet-save">저장</button>
+      </div>
+      <div id="curSheetSaved" class="saved"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 설정 -->
+  <section id="view-settings" hidden>
+    <div class="tabhead">
+      <div class="eyebrow">데이터 안전</div>
+      <h1>설정 / 백업</h1>
+      <p>기록은 먼저 이 기기에 저장됩니다. 구글 시트를 연결하면 다른 기기와 자동으로 맞춰지고, 스냅샷으로 언제든 되돌릴 수 있습니다.</p>
+    </div>
+
+    <div class="card">
+      <div class="section-label">화면</div>
+      <div class="settings-row">
+        <div class="desc"><b>밝게 / 어둡게</b><span>기기 설정을 따르거나 직접 고정합니다.</span></div>
+        <div class="seg">
+          <button data-act="theme" data-theme="auto">자동</button>
+          <button data-act="theme" data-theme="light">밝게</button>
+          <button data-act="theme" data-theme="dark">어둡게</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="section-label">타임머신 스냅샷</div>
+      <div class="settings-row">
+        <div class="desc"><b>최근 5개까지 보관</b><span>하루에 한 번 자동으로, 그리고 되돌리기·불러오기 전에 자동 저장됩니다. 지금 상태도 직접 남길 수 있습니다.</span></div>
+        <button class="btn btn-sm btn-ghost" data-act="snap-now">지금 저장</button>
+      </div>
+      <div id="snapList" style="margin-top:4px"></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="section-label">파일로 백업</div>
+      <div class="settings-row">
+        <div class="desc"><b>JSON 내보내기</b><span>사안·회의록·사례 노트·체크 상태 전부를 한 파일로 저장합니다.</span></div>
+        <button class="btn btn-sm btn-ghost" data-act="export">내보내기</button>
+      </div>
+      <div class="settings-row">
+        <div class="desc"><b>JSON 불러오기</b><span>이 앱에서 내보낸 파일을 그대로 복원합니다. 불러오기 전 상태는 스냅샷에 저장됩니다.</span></div>
+        <button class="btn btn-sm btn-ghost" data-act="import-click">불러오기</button>
+        <input type="file" id="importFile" accept="application/json,.json" data-act="import-file" hidden>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="section-label">구글 시트 자동 동기화</div>
+      <div class="syncbox">
+        <div class="field"><label for="sUrl">Apps Script 웹 앱 주소 (/exec)</label>
+          <input id="sUrl" class="input" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">
+        </div>
+        <div class="settings-row" style="padding:12px 0 4px">
+          <div class="desc"><b>켜 두면 자동으로 맞춥니다</b><span>수정 후 1.5초 뒤 시트로 저장하고, 앱을 열거나 화면으로 돌아올 때 최신 기록을 확인합니다. 시트가 비어 있을 때는 이 기기 기록을 지우지 않습니다.</span></div>
+          <button class="switch" id="sAuto" role="switch" aria-checked="false" data-act="sync-toggle" aria-label="자동 동기화"></button>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn btn-sm btn-primary" data-act="sync-save-url">주소 저장 · 확인</button>
+          <button class="btn btn-sm btn-ghost" data-act="sync-push">시트로 저장</button>
+          <button class="btn btn-sm btn-ghost" data-act="sync-pull">시트에서 불러오기</button>
+        </div>
+        <div class="st" id="sStatus" role="status"></div>
+      </div>
+      <p class="tiny" style="margin-top:10px">준비물은 <b>본인의 구글 스프레드시트 + Apps Script</b>입니다. 함께 드린 <b>apps_script.gs</b> 파일을 그 시트의 Apps Script에 붙여 넣고 웹 앱으로 배포한 뒤, 그 주소를 여기에 넣으면 됩니다. 데이터는 본인 시트로만 갑니다.</p>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="section-label">기록 지우기</div>
+      <div class="settings-row">
+        <div class="desc"><b>이 기기 기록 모두 지우기</b><span>지우기 전 상태는 스냅샷에 저장됩니다. 시트 백업은 그대로 남습니다.</span></div>
+        <button class="btn btn-sm btn-danger" data-act="wipe">지우기</button>
+      </div>
+    </div>
+
+    <p class="tiny" style="margin:16px 4px 0">개인정보 · 앱에는 이름·학교명이 들어 있지 않습니다. 적는 내용(학부모·학생 관련)은 이 기기 저장소와, 연결한 경우 본인 구글 시트에만 남습니다. 공용 기기에서는 기록 지우기로 정리하세요.</p>
+    <p class="tiny faint" style="margin:10px 4px 0">부장 참모 v2.0.0 · 인터넷 없이도 열립니다</p>
+  </section>
+</div>
+
+<nav class="bottomnav" aria-label="화면">
+  <button data-act="tab" data-tab="desk"><span class="ico">🎯</span>데스크</button>
+  <button data-act="tab" data-tab="playbook"><span class="ico">🛡️</span>플레이북</button>
+  <button data-act="tab" data-tab="meeting"><span class="ico">📋</span>회의·연간</button>
+  <button data-act="tab" data-tab="curric"><span class="ico">📚</span>교육과정</button>
+  <button data-act="tab" data-tab="settings"><span class="ico">⚙️</span>설정</button>
+</nav>
+
+<script>
+/* 부장 참모 — 실전 플레이북 데이터
+   각 항목: 상황 → 판단 기준 → 판단 순서 → 하지 말 것 → 바로 보내는 문구(3톤) → 내 사례 */
+var CATS = [
+  { id: 'dolbal', name: '돌발·민원', hint: '전화·방문·단체방' },
+  { id: 'gyosa', name: '교사·협조', hint: '동학년 12명' },
+  { id: 'gwanri', name: '관리자·보고', hint: '교감·교장' },
+  { id: 'gongmun', name: '공문·규정', hint: '해석과 기준' },
+  { id: 'haksaeng', name: '학생·생활', hint: '안전·사안' },
+  { id: 'minde', name: '스몰토크·마음', hint: '나를 지키기' }
+];
+
+var PLAYBOOKS = [
+  {
+    id: 'p01', cat: 'dolbal', t: '학부모가 아침부터 전화로 항의한다',
+    lead: '통화를 끊을 수 없고, 지금 답을 요구한다.',
+    crit: '항의의 8할은 "지금 답을 달라"는 압박입니다. 답 대신 확인할 사람과 드릴 시각을 주면 대부분 가라앉습니다.',
+    steps: [
+      '사실만 받아 적습니다 — 언제, 어떤 일, 어느 반, 무엇을 원하는지. 판단은 아직 하지 않습니다.',
+      '내가 결정할 수 있는 일인지 가릅니다. 수업·평가·규정은 담당자 확인이 먼저입니다.',
+      '답 대신 시점을 줍니다 — "오늘 4시까지"처럼 구체적으로. 이 약속은 반드시 지킵니다.',
+      '담임·교감과 기준을 맞춘 뒤 같은 말로 다시 연락합니다.'
+    ],
+    dont: [
+      '전화에서 규정 해석·사과·보상을 즉석에서 약속하지 않습니다.',
+      '담임에게 확인하지 않고 "담임이 그랬대요"를 전달하지 않습니다.',
+      '항의받은 그 자리에서 다른 학부모에게 이 이야기를 하지 않습니다.'
+    ],
+    msgs: [
+      { k: '정중·공식', t: '어머님, 말씀 잘 들었습니다. 제가 확인해야 할 부분이 있어 오늘 퇴근 전까지 다시 연락드리겠습니다. 아이가 불편했던 부분은 제가 직접 챙기겠습니다.' },
+      { k: '부드럽게', t: '어머님 마음 충분히 이해합니다. 다만 제가 정확히 모르는 채로 말씀드리면 오히려 아이에게 안 좋을 것 같아요. 오늘 안으로 확인해서 다시 전화드릴게요.' },
+      { k: '단호하게', t: '지금 이 자리에서 결론을 말씀드리면 부정확할 수 있습니다. 확인 후 정확히 안내드리는 것이 맞다고 생각합니다. 오늘 4시까지 연락드리겠습니다.' }
+    ]
+  },
+  {
+    id: 'p02', cat: 'dolbal', t: '쉬는 시간에 아이가 다쳤다',
+    lead: '경위는 아직 모르고, 학부모 연락이 먼저일 수 있다.',
+    crit: '안전이 1순위, 보고가 2순위입니다. 경위 판단은 내 일이 아니고, 절차와 기록만 정확하면 됩니다.',
+    steps: [
+      '보건실·119 먼저. 아이 상태를 확인합니다.',
+      '담임·교감에게 즉시 알립니다 — "몇 시 몇 분, 어디서, 누가, 지금 상태"만. 통화가 안 되면 문자로 남깁니다.',
+      '학부모에게는 사실만 — "지금 병원으로 가고 있습니다"까지. 원인과 책임은 말하지 않습니다.',
+      '목격자·시각·조치를 그날 안에 기록합니다.'
+    ],
+    dont: [
+      '"괜찮을 거예요"라고 단정하지 않습니다.',
+      '경위를 추측해 학부모·다른 교사에게 말하지 않습니다.',
+      '아이 사진이나 사고 현장 사진을 단체방에 올리지 않습니다.'
+    ],
+    msgs: [
+      { k: '학부모', t: '어머님, 아이가 쉬는 시간에 다쳐 지금 병원으로 이동 중입니다. 현재 상태는 ○○이고 제가 함께 있습니다. 도착하는 대로 바로 연락드리겠습니다.' },
+      { k: '교감 보고', t: '교감선생님, ○시 ○분 ○학년 학생이 ○○에서 다쳐 병원 이송 중입니다. 담임 동행 중이고 학부모께 연락했습니다. 경위는 확인되는 대로 정리해 올리겠습니다.' },
+      { k: '경위 문의', t: '경위는 지금 확인 중입니다. 확인되면 사실대로 정리해서 말씀드리겠습니다. 지금은 아이 상태를 보는 것이 먼저입니다.' }
+    ]
+  },
+  {
+    id: 'p03', cat: 'dolbal', t: '학부모 단체방에서 공개 항의가 올라왔다',
+    lead: '12개 반 학부모가 보고 있고, 답을 기다린다.',
+    crit: '공개방의 답은 모두가 지켜보는 판결이 됩니다. 방에서는 접수만, 내용은 1:1로 옮깁니다.',
+    steps: [
+      '방에는 한 줄만 — "확인해서 따로 연락드리겠습니다". 30분 안에 답니다.',
+      '해당 학부모에게 1:1 전화나 문자로 옮깁니다.',
+      '사실을 확인하고 담임과 같은 문구를 맞춥니다.',
+      '필요하면 방에 "정리되었습니다" 한 줄로 닫습니다.'
+    ],
+    dont: [
+      '단체방에서 반박하거나 해명하지 않습니다. 캡처되어 다른 반으로 갑니다.',
+      '다른 학부모 편을 들거나 맞장구치지 않습니다.',
+      '답을 늦게 주고 방치하지 않습니다. 침묵도 답이 됩니다.'
+    ],
+    msgs: [
+      { k: '방 공개(한 줄)', t: '학부모님, 확인해서 개별로 연락드리겠습니다. 잠시만 기다려 주세요.' },
+      { k: '1:1 전환', t: '어머님, 방에 올려 주신 내용 확인했습니다. 다른 학부모님들께서도 보고 계셔서 자세한 이야기는 이렇게 따로 연락드리는 점 이해 부탁드립니다. 말씀해 주세요.' },
+      { k: '마무리', t: '확인 결과 ○○입니다. 안내가 늦어 불편하셨을 텐데, 앞으로는 이런 일이 없도록 학년에서 기준을 맞추겠습니다.' }
+    ]
+  },
+  {
+    id: 'p04', cat: 'dolbal', t: '한 반 민원이 학년 전체 이슈로 번진다',
+    lead: '다른 반 학부모들이 "우리 반은 왜 다르냐"고 묻기 시작했다.',
+    crit: '반마다 다른 답이 나오면 그것이 두 번째 민원이 됩니다. 학년 공통 문구 하나를 먼저 만듭니다.',
+    steps: [
+      '민원의 사실과 요구를 나눠 적습니다.',
+      '담임·교감과 "우리 학년은 이렇게 답한다" 한 문장을 정합니다.',
+      '12명 담임에게 같은 문구와 배경을 전달합니다. 구두가 아니라 메신저로.',
+      '담임이 학부모에게 먼저 말하게 하고, 학년은 뒤에서 같은 말을 반복합니다.'
+    ],
+    dont: [
+      '담임에게 "알아서 대응하세요"라고 넘기지 않습니다.',
+      '반별 예외를 만들지 않습니다. 예외는 다음 기준이 됩니다.',
+      '민원 학부모와 담임을 바로 맞대면시키지 않습니다.'
+    ],
+    msgs: [
+      { k: '담임 전달', t: '선생님들, ○반 민원 관련해 학년 공통 답변 문구를 정리했습니다. 학부모 문의가 오면 아래 문구로 안내 부탁드립니다. 배경은 협의회에서 짧게 설명드리겠습니다.\n[문구] ○○은 학년 공통으로 ○○하게 운영하고 있습니다.' },
+      { k: '학부모', t: '어머님, ○○은 학년 전체가 같은 기준으로 운영하고 있습니다. 개별로 다르게 적용하면 오히려 불공평해질 수 있어 기준을 하나로 맞춰 안내드리고 있습니다.' },
+      { k: '교감 보고', t: '교감선생님, ○반 민원이 학년 공통 기준 문제로 번질 수 있어 공통 답변 문구를 정해 공유했습니다. 기준은 ○○이고, 진행 상황은 내일 보고드리겠습니다.' }
+    ]
+  },
+  {
+    id: 'p05', cat: 'dolbal', t: '학부모가 담임 교체를 요구한다',
+    lead: '"저 선생님은 안 됩니다. 바꿔 주세요."',
+    crit: '내 권한 밖입니다. 접수하고 관리자 라인으로 넘깁니다. 내가 중재를 약속하면 나중에 내가 문제가 됩니다.',
+    steps: [
+      '요구를 그대로 적습니다. 판단과 평가는 넣지 않습니다.',
+      '담임을 평가하는 말은 하지 않습니다. "확인하겠습니다"까지만.',
+      '교감(또는 교장)에게 즉시 보고합니다 — 사실과 요구만.',
+      '학부모에게는 "학교 절차대로 검토된다"까지만. 결과를 약속하지 않습니다.'
+    ],
+    dont: [
+      '"제가 담임 선생님을 바꿔 보겠습니다" 같은 약속을 하지 않습니다.',
+      '담임에게 학부모 말을 그대로 전달해 감정을 옮기지 않습니다.',
+      '학부모 편에서 담임을 설득하려 하지 않습니다.'
+    ],
+    msgs: [
+      { k: '학부모', t: '어머님, 말씀하신 부분은 제가 임의로 결정할 수 있는 사안이 아닙니다. 학교 절차에 따라 검토되도록 관련 선생님께 전달하겠습니다. 진행은 제가 다시 안내드리겠습니다.' },
+      { k: '교감', t: '교감선생님, ○반 학부모님이 담임 교체를 요구하셨습니다. 요구 사항은 ○○이고 제가 약속한 것은 없습니다. 어떻게 진행할지 지침 주시면 그대로 따르겠습니다.' },
+      { k: '담임에게', t: '선생님, ○반 학부모님이 이런 이야기를 하셨어요. 선생님을 평가하려는 자리는 아니고, 함께 대응 방향을 맞추려고 먼저 알려드립니다. 편한 시간에 10분만 이야기 나눌 수 있을까요?' }
+    ]
+  },
+
+  {
+    id: 'p06', cat: 'gyosa', t: '동학년 교사가 협조 요청을 거부하거나 묵살한다',
+    lead: '카톡을 읽고도 답이 없다. 다른 반은 다 했다.',
+    crit: '첫 요청이 무시된 건 대개 무엇을·언제까지·왜가 흐려서입니다. 한 번은 분명하게 다시, 그다음이 관리자입니다.',
+    steps: [
+      '요청을 "무엇을, 언제까지, 왜"로 다시 써서 문자로 보냅니다. 말로 하지 않습니다.',
+      '상대 사정을 한 번 묻습니다 — 거절 이유가 업무량인지, 기준 불만인지.',
+      '내가 줄일 수 있는 것을 줄입니다 — 범위·분량·기한.',
+      '그래도 안 되면 교감에게 사실과 내가 한 조치만 보고합니다.'
+    ],
+    dont: [
+      '다른 선생님들 앞에서 지적하지 않습니다.',
+      '"다들 하는데 왜 선생님만" 식으로 비교하지 않습니다.',
+      '감정이 실린 카톡을 보내지 않습니다. 밤에 쓰고 아침에 보냅니다.'
+    ],
+    msgs: [
+      { k: '1차 · 분명하게', t: '선생님, ○○ 관련해서 부탁드릴 것이 있습니다. ①○○ ②○○까지 ③이유는 ○○입니다. 지금 업무량에서 어려운 부분이 있으면 말씀해 주세요. 제가 조정하겠습니다.' },
+      { k: '2차 · 부드럽게', t: '선생님, 지난번 부탁드린 건이 진행되지 않아 확인차 연락드립니다. 제가 놓친 부분이 있었는지 먼저 여쭙고 싶습니다. 언제 잠깐 이야기 가능하실까요?' },
+      { k: '3차 · 단호하게', t: '선생님, ○○은 ○일까지 학년 전체가 맞춰야 하는 일정입니다. 오늘까지 어려우시면 제가 교감선생님과 함께 방법을 다시 정하겠습니다. 어떻게 하면 가능한지 알려주세요.' }
+    ]
+  },
+  {
+    id: 'p07', cat: 'gyosa', t: '담임이 맡은 업무를 계속 미룬다',
+    lead: '마감이 지났는데 자료가 안 올라온다. 두 번째다.',
+    crit: '사람을 평가하는 게 아니라 상태를 확인합니다. 기한 이틀 전 리마인드가 원칙입니다.',
+    steps: [
+      '기한 이틀 전에 한 번 확인 문자를 보냅니다. 자동 알림처럼 짧게.',
+      '지났으면 무엇이 막혔는지 묻습니다. 못 한 이유는 대개 정보·시간·권한입니다.',
+      '내가 뺄 수 있는 일을 빼고, 남은 것의 새 기한을 정해 문자로 남깁니다.',
+      '두 번 반복되면 교감에게 사실만 공유합니다. 평가가 아니라 업무 조정 요청으로.'
+    ],
+    dont: [
+      '기한 당일에 처음 확인하지 않습니다.',
+      '회의 자리에서 공개 지적하지 않습니다.',
+      '대신 해주고 넘어가지 않습니다. 다음에도 같은 일이 옵니다.'
+    ],
+    msgs: [
+      { k: '리마인드', t: '선생님, ○○ 마감이 모레(○일)입니다. 자료는 ○○에 있고 형식은 작년 것 그대로 쓰시면 됩니다. 어려운 부분 있으면 말씀해 주세요.' },
+      { k: '지난 뒤', t: '선생님, ○○이 아직 올라오지 않아 확인차 연락드립니다. 시간이 없으셨는지, 방법이 헷갈리셨는지 알려주시면 제가 줄일 수 있는 부분을 줄이겠습니다. ○일까지로 다시 잡아도 될까요?' },
+      { k: '교감 공유', t: '교감선생님, ○○ 업무가 두 차례 기한을 넘겼습니다. 담임 선생님 업무량이 큰 상황이라 제가 ○○ 부분을 덜어내고 기한을 ○일로 조정했습니다. 함께 봐 주시면 좋겠습니다.' }
+    ]
+  },
+  {
+    id: 'p08', cat: 'gyosa', t: '선배·영향력 있는 교사와 의견이 부딪힌다',
+    lead: '회의에서 내 안을 정면으로 반대했다. 다른 사람들이 지켜보고 있다.',
+    crit: '이기지 않습니다. 지킬 것 하나를 정하고 나머지는 양보합니다. 공개석에서 논쟁하지 않습니다.',
+    steps: [
+      '그분의 말에서 정보와 요구를 분리해 적습니다.',
+      '내가 반드시 지켜야 할 것 1개를 정합니다 — 기준·안전·규정.',
+      '공개석에서는 바로 반박하지 않고 따로 시간을 청합니다.',
+      '결정은 기준으로 말합니다. 사람과 사람의 문제로 만들지 않습니다.'
+    ],
+    dont: [
+      '회의에서 공개 반박하지 않습니다.',
+      '"그렇게 하면 안 됩니다" 대신 "그렇게 하면 ○○ 문제가 생깁니다"로 말합니다.',
+      '다른 교사들에게 그분의 말을 옮기지 않습니다.'
+    ],
+    msgs: [
+      { k: '시간 청하기', t: '선생님, 아까 말씀하신 ○○ 부분은 제가 다르게 생각하는 지점이 있어서 회의 끝나고 10분만 이야기 나눌 수 있을까요? 자리에서 길어지면 다른 선생님들께 실례일 것 같아서요.' },
+      { k: '내 의견', t: '선생님 말씀 ○○은 저도 동의합니다. 다만 ○○은 학년 전체 기준이 걸려 있어서 그 부분만은 지키고 싶습니다. 나머지는 선생님 방식대로 하겠습니다.' },
+      { k: '결정 후 확인', t: '선생님, 어제 이야기 나눈 대로 ○○으로 정리했습니다. 제가 이해한 게 맞는지 한 번만 확인해 주세요. 다르면 바로 고치겠습니다.' }
+    ]
+  },
+  {
+    id: 'p09', cat: 'gyosa', t: '업무 불균형 불만이 나온다',
+    lead: '"왜 우리 반만 계속 맡나요" — 말은 안 해도 표정에 있다.',
+    crit: '기준을 먼저 공개하면 변명할 일이 줄어듭니다. 예외를 만들면 그 예외가 새 기준이 됩니다.',
+    steps: [
+      '작년 분장표와 올해 배분을 나란히 놓고 숫자로 확인합니다.',
+      '배분 기준(시수·담임 부담·전년도 이월)을 한 장으로 만듭니다.',
+      '협의회에서 기준을 먼저 보여주고 조정 의견을 받습니다.',
+      '조정한 것은 전체에게 같은 방식으로 공지합니다.'
+    ],
+    dont: [
+      '"다들 비슷합니다"라고 뭉뚱그리지 않습니다.',
+      '조용한 사람에게 조용히 더 얹지 않습니다.',
+      '불만을 말한 사람에게만 몰래 조정해 주지 않습니다.'
+    ],
+    msgs: [
+      { k: '기준 공개', t: '선생님들, 올해 학년 업무 배분 기준을 정리했습니다. ①시수 ②담임 부담 ③작년 이월 ④전담·특별실 순으로 맞췄습니다. 표는 ○○에 올렸습니다. 이견 있으면 ○일까지 말씀해 주세요.' },
+      { k: '개별 답변', t: '선생님 말씀 들었습니다. ○○ 부분은 기준상 ○○이라 지금 배분이 나왔습니다. 다만 ○○이 부담이 크면 제가 덜어낼 수 있습니다. 어느 쪽이 나으실까요?' },
+      { k: '조정 공지', t: '선생님들, ○○ 업무를 ○○선생님에서 ○○선생님으로 조정했습니다. 이유는 ○○이고, 다른 반도 같은 기준으로 다시 확인했습니다.' }
+    ]
+  },
+  {
+    id: 'p10', cat: 'gyosa', t: '담임 간 갈등 중재를 부탁받았다',
+    lead: '두 선생님이 서로 이야기를 안 한다. 아이들 앞에서만 말한다.',
+    crit: '중재자는 편을 드는 사람이 아니라 순서를 정하는 사람입니다. 기준은 아이들입니다.',
+    steps: [
+      '양쪽을 따로 만나 사실만 듣습니다. 감정은 받아 주되 기록은 사실만.',
+      '공통된 사실과 서로 다른 이해를 정리합니다.',
+      '함께 앉히고 "아이들에게 무엇이 좋은가" 한 가지로 좁힙니다.',
+      '결론이 아니라 다음 행동을 정해 문자로 남깁니다.'
+    ],
+    dont: [
+      '누가 맞는지 판정하지 않습니다.',
+      '한쪽 이야기를 다른 쪽에 그대로 옮기지 않습니다.',
+      '감정이 올라온 상태로 셋이 앉지 않습니다.'
+    ],
+    msgs: [
+      { k: '따로 만나기', t: '선생님, ○○ 건으로 잠깐 이야기 듣고 싶습니다. 판단하려는 자리는 아니고, 제가 상황을 정확히 알아야 다음을 정할 수 있어서요. 20분이면 됩니다.' },
+      { k: '함께 앉았을 때', t: '두 분 이야기 다 들었습니다. 오늘 정할 것은 누가 맞는지가 아니라 ○○을 어떻게 할지입니다. 두 분이 동의할 수 있는 선에서 하나만 정해 봅시다.' },
+      { k: '마무리', t: '오늘 정한 것은 ①○○ ②○○입니다. 제가 이렇게 이해했는데 맞으면 이대로 공유하겠습니다. 다르면 지금 말씀해 주세요.' }
+    ]
+  },
+  {
+    id: 'p11', cat: 'gyosa', t: '뒷담화·소문이 들려온다',
+    lead: '"선생님이 그렇게 말했다며…" 하는 이야기가 돌고 있다.',
+    crit: '들은 것과 확인된 것은 다릅니다. 반응하지 않는 것도 대응입니다.',
+    steps: [
+      '누가·언제·무엇을 말했는지 사실만 적습니다. 확산은 하지 않습니다.',
+      '사실 확인이 필요한지 스스로 묻습니다. 대개 업무에 영향이 없습니다.',
+      '업무에 영향이 있으면 당사자에게 직접, 한 번만 묻습니다.',
+      '그 외에는 반응하지 않고 기록만 남깁니다.'
+    ],
+    dont: [
+      '"누가 그랬냐"를 캐지 않습니다.',
+      '해명하려고 단체방·회의에서 먼저 꺼내지 않습니다.',
+      '그 이야기를 다른 사람에게 확인하러 다니지 않습니다.'
+    ],
+    msgs: [
+      { k: '직접 확인', t: '선생님, 제가 듣기로는 ○○라고 들었습니다. 사실인지 확인하고 싶어서 직접 여쭙습니다. 오해가 있으면 지금 풀고 싶습니다.' },
+      { k: '닫기', t: '확인했습니다. 오해였다고 하니 더 이야기하지 않겠습니다. 업무에는 영향이 없으니 신경 쓰지 마세요.' },
+      { k: '공식 자리에서 한 번만', t: '요즘 나오는 이야기 중 사실과 다른 부분이 있어 한 번만 정리하겠습니다. ○○은 사실이 아니고 실제로는 ○○입니다. 다음부터는 직접 물어봐 주시면 바로 말씀드리겠습니다.' }
+    ]
+  },
+  {
+    id: 'p12', cat: 'gyosa', t: '저경력·힘들어 보이는 담임을 어떻게 도울까',
+    lead: '야근이 잦고, 물어보지도 못하고 혼자 막혀 있다.',
+    crit: '다 구해 줄 필요는 없습니다. 한 번 묻고 들어 주면 됩니다. 대신 해줄 일은 범위를 정해서.',
+    steps: [
+      '수업과 업무 중 무엇이 무거운지 한 가지만 묻습니다.',
+      '내가 대신할 수 있는 일 하나를 구체적으로 제안합니다. 기한과 범위를 명확히.',
+      '방법을 알려줄 때는 "한 번 같이 해보기"로 합니다.',
+      '일주일 뒤 한 번만 상태를 확인합니다.'
+    ],
+    dont: [
+      '"왜 이걸 못 하냐"는 말투로 묻지 않습니다.',
+      '대신 다 해주고 책임은 본인이 지게 만들지 않습니다.',
+      '다른 교사에게 "힘들어한다"고 말하지 않습니다.'
+    ],
+    msgs: [
+      { k: '묻기', t: '선생님, 요즘 일정이 빡빡해 보여서요. 수업이 힘드신지 업무가 많은지, 편한 대로만 말씀해 주세요. 제가 덜어낼 수 있는 건 바로 덜어내겠습니다.' },
+      { k: '제안', t: '그럼 ○○은 제가 이번 주에 정리해서 드릴게요. ○○만 선생님께서 봐 주시면 됩니다. 방법은 10분만 같이 한 번 해보면 금방 익숙해지실 거예요.' },
+      { k: '후속', t: '지난주에 말씀하신 ○○은 좀 어떠세요? 잘 되고 있으면 그대로 가시고, 아직 어려우면 다른 방법으로 바꿔 봅시다.' }
+    ]
+  },
+  {
+    id: 'p13', cat: 'gyosa', t: '협의회에서 아무도 말하지 않는다',
+    lead: '안건을 읽어 주는데 반응이 없다. "없습니다"만 돌아온다.',
+    crit: '침묵은 반대가 아니라 위임일 수도, 모르겠다는 신호일 수도 있습니다. 지목 질문은 효과가 없습니다. 사전 초안에 이름을 붙여 물어야 합니다.',
+    steps: [
+      '하루 전에 초안(안건 + 내 제안 + 오늘 정할 것)을 문서로 공유합니다.',
+      '회의는 3분 설명 → 구체 질문 → 결정 순으로 진행합니다.',
+      '질문은 "어떻게 생각하세요"가 아니라 "A와 B 중 어느 쪽이 낫습니까"로 합니다.',
+      '결정·보류·담당·기한을 그 자리에서 한 줄씩 읽어 확인합니다.'
+    ],
+    dont: [
+      '"다들 어떻게 생각하세요"로 시작하지 않습니다.',
+      '회의 끝에 급하게 안건을 추가하지 않습니다.',
+      '결정을 못 하면 "다음에 다시"로 넘기지 않습니다. 보류와 이유를 남깁니다.'
+    ],
+    msgs: [
+      { k: '사전 공유', t: '선생님들, 내일 협의회 안건 초안 먼저 올립니다. ①○○ ②○○ ③○○입니다. 미리 보시고 의견 있으시면 회의 전까지 문자 주셔도 됩니다. 회의에서는 결정만 빠르게 하겠습니다.' },
+      { k: '회의 중', t: '이 안건은 제가 ○○안을 제안합니다. 이유는 ○○입니다. A(○○)와 B(○○) 중 어느 쪽이 나을지 말씀해 주세요. 3분만 생각해 보시죠.' },
+      { k: '마무리', t: '오늘 정리하면 확정 ○○, 보류 ○○(이유 ○○), 담당 ○○선생님, 기한 ○일입니다. 제가 이렇게 이해했는데 맞습니까? 맞으면 이대로 공지하겠습니다.' }
+    ]
+  },
+
+  {
+    id: 'p14', cat: 'gwanri', t: '관리자가 갑자기 새 업무를 지시한다',
+    lead: '오늘 오후에 "이것도 내일까지"라는 말이 떨어졌다.',
+    crit: '받되 그 자리에서 내 몫·기한·지금 일과의 충돌을 확인합니다. 조용히 다 떠안으면 다음에도 옵니다.',
+    steps: [
+      '지시 내용을 한 줄로 되읽어 확인합니다 — 무엇을, 언제까지, 어디까지.',
+      '지금 진행 중인 일과 충돌하는 것을 말합니다. 숫자와 날짜로.',
+      '우선순위를 관리자가 정하게 합니다. 내가 임의로 정하지 않습니다.',
+      '정해진 순서를 문자로 남깁니다.'
+    ],
+    dont: [
+      '"네 알겠습니다"만 하고 나중에 늦지 않습니다.',
+      '다른 담임 몫까지 대신 떠안지 않습니다.',
+      '불만을 동학년에게 먼저 흘리지 않습니다.'
+    ],
+    msgs: [
+      { k: '그 자리에서', t: '지시 주신 것 이해했습니다. ○○까지 ○○까지 하면 되는 걸로 알겠습니다. 다만 지금 ○○ 마감이 ○일이라, 둘 중 어느 것을 먼저 할지 정해 주시면 그 순서로 하겠습니다.' },
+      { k: '문자 확인', t: '교감선생님, 방금 지시하신 ○○ 정리해서 문자드립니다. ①내용 ②기한 ③제가 맡는 범위 ④기존 ○○ 업무와 순서. 다르면 알려주세요.' },
+      { k: '어려울 때', t: '교감선생님, ○○까지는 제가 ○○까지밖에 못 합니다. 기한을 ○일로 조정하시거나 ○○ 부분을 다른 선생님께 부탁드려야 합니다. 어느 쪽으로 할까요?' }
+    ]
+  },
+  {
+    id: 'p15', cat: 'gwanri', t: '공문이 학년에 부담이 크다 (업무 경감 요청)',
+    lead: '학년 12개 반이 다 해야 하는데, 이번 달에 세 건이 겹쳤다.',
+    crit: '근거·수치·대안 세 가지로 요청합니다. 감정 없는 1페이지가 가장 셉니다.',
+    steps: [
+      '공문에서 반드시 해야 하는 것과 학교가 정한 것을 구분합니다.',
+      '현재 학년 부담을 숫자로 만듭니다 — 시수·건수·인원.',
+      '대안을 2개 준비합니다. 범위 축소 / 시기 이동.',
+      '결론-근거-요청 순서로 1페이지에 담아 보고합니다.'
+    ],
+    dont: [
+      '"너무 많아서 못 하겠습니다"로 시작하지 않습니다.',
+      '다른 학년과 비교하며 불만을 말하지 않습니다.',
+      '경감이 안 됐는데도 그냥 다 하지 않습니다. 최소 필수만 하고 기록합니다.'
+    ],
+    msgs: [
+      { k: '보고', t: '교감선생님, ○○ 공문 관련해 학년 부담을 정리해 봤습니다. 이번 달에 학년 ○○건이 겹칩니다. ①범위를 ○○로 줄이거나 ②기한을 ○일로 옮기면 가능합니다. 어느 쪽으로 검토하시겠습니까?' },
+      { k: '경감 안내', t: '선생님들, ○○ 공문은 학교에서 ○○ 부분만 하기로 했습니다. 학년에서는 ○○만 진행합니다. 나머지는 하지 않으셔도 됩니다.' },
+      { k: '안 될 때', t: '알겠습니다. 그러면 필수 항목 ○○만 먼저 하고 나머지는 ○일 이후에 하겠습니다. 진행 상황은 중간에 한 번 보고드리겠습니다.' }
+    ]
+  },
+  {
+    id: 'p16', cat: 'gwanri', t: '사안이 생겼는데 언제 보고할지 모르겠다',
+    lead: '아직 확정된 건 아닌데, 나중에 문제가 되면 내 책임이 될 것 같다.',
+    crit: '되돌릴 수 없는 일은 즉시, 되돌릴 수 있는 일은 모아서 한 번. 애매하면 즉시 쪽입니다.',
+    steps: [
+      '"되돌릴 수 있는가"로 가릅니다. 안전·법·학부모 통보·예산은 즉시입니다.',
+      '즉시 보고는 결론-사실-내가 한 조치-필요한 결정 네 줄로 합니다.',
+      '모아서 보고할 것은 하루 한 번 같은 시간에 합니다.',
+      '보고 끝에 "결정해 주셔야 할 것"을 반드시 한 줄 남깁니다.'
+    ],
+    dont: [
+      '"일이 커지면 말씀드리겠습니다"로 미루지 않습니다.',
+      '구두로만 보고하고 끝내지 않습니다. 문자로 한 줄 남깁니다.',
+      '보고하면서 동시에 변명하지 않습니다.'
+    ],
+    msgs: [
+      { k: '즉시', t: '교감선생님, 보고드립니다. ①○시 ○분 ○○이 발생했습니다. ②현재 ○○ 상태입니다. ③제가 ○○ 조치했습니다. ④○○ 결정이 필요합니다. 지금 통화 가능하십니까?' },
+      { k: '모아서', t: '교감선생님, 오늘 학년 진행 상황 정리합니다. 완료 ○○, 진행 ○○, 결정 필요 ○○입니다. 결정 필요 건은 ①○○(○일까지) ②○○입니다.' },
+      { k: '애매할 때', t: '교감선생님, 아직 확정된 건 아니지만 먼저 알려드리는 게 맞을 것 같아 연락드립니다. ○○ 가능성이 있어 확인 중입니다. 확인되면 바로 다시 보고드리겠습니다.' }
+    ]
+  },
+  {
+    id: 'p17', cat: 'gwanri', t: '보고가 자꾸 반려되거나 다시 쓰라고 한다',
+    lead: '세 번을 다시 썼다. 무엇이 문제인지 정확히 말해 주지 않는다.',
+    crit: '그 관리자가 원하는 형식이 따로 있습니다. 세 번 들으면 그 형식으로 고정합니다.',
+    steps: [
+      '반려 사유를 그대로 적습니다 — 길이·순서·숫자·결론 위치.',
+      '다음 보고는 "결론 1줄 → 근거 3줄 → 요청 1줄"로 고정합니다.',
+      '첫 줄에 결정이 필요한지, 공유인지 표시합니다.',
+      '같은 형식으로 세 번 반복하면 그게 그 사람의 기준입니다.'
+    ],
+    dont: [
+      '"왜 자꾸 반려하십니까"를 따지지 않습니다.',
+      '길게 써서 설득하려 하지 않습니다.',
+      '반려될 때마다 처음부터 다시 쓰지 않습니다. 형식만 바꿉니다.'
+    ],
+    msgs: [
+      { k: '재보고', t: '교감선생님, 지난번 반려 사유 반영해서 다시 올립니다. 결론: ○○. 근거: ①○○ ②○○. 요청: ○○ 결정 부탁드립니다.' },
+      { k: '형식 확인', t: '교감선생님, 앞으로 보고는 결론-근거-요청 순서로 한 장으로 올리겠습니다. 이 형식이 보시기 편하신지 한 번만 확인 부탁드립니다.' },
+      { k: '공유 보고', t: '교감선생님, 결정이 필요한 건은 아니고 공유드립니다. ○○이 ○○하게 진행되었습니다. 별도 조치는 없습니다.' }
+    ]
+  },
+
+  {
+    id: 'p18', cat: 'gongmun', t: '공문이 모호해서 안내가 막막하다', rule: 1,
+    lead: '어디까지 해야 하는지 공문에 안 나와 있다. 담임들이 묻는다.',
+    crit: '모호한 건 내가 해석하지 않습니다. 담당자에게 묻고, 답이 오기 전에는 "임시 안내"라고 표시합니다.',
+    steps: [
+      '공문에서 확실한 것과 애매한 것을 표로 나눕니다.',
+      '담당자에게 "이렇게 이해했다"는 확인 질문을 보냅니다. 예/아니오로 답할 수 있게.',
+      '답 전에는 담임에게 임시로 안내하고, 그 사실을 문구에 적습니다.',
+      '답이 오면 확정 안내를 다시 보내고 임시 안내를 회수합니다.'
+    ],
+    dont: [
+      '내 해석으로 확정 안내하지 않습니다.',
+      '애매한 부분을 빼고 안내하지 않습니다. 나중에 문제가 됩니다.',
+      '답을 기다리며 안내를 미루지 않습니다.'
+    ],
+    msgs: [
+      { k: '담당자 질문', t: '선생님, ○○ 공문 ○○ 부분이 애매해서 문의드립니다. 저는 "○○"으로 이해했습니다. ①이 이해가 맞는지 ②○○도 포함인지 두 가지만 확인 부탁드립니다. 급히 안내해야 해서요.' },
+      { k: '임시 안내', t: '[임시 안내] ○○ 공문 관련입니다. ○○은 확정이고 ○○은 담당자 확인 중입니다. 확인되는 대로 다시 안내드리겠습니다. 임시 안내이니 학부모님께 확정으로 전달하지 말아 주세요.' },
+      { k: '확정 안내', t: '[확정] ○○ 공문 관련 확인 완료했습니다. ○○으로 안내해 주시면 됩니다. 어제 임시 안내는 이 내용으로 대체합니다.' }
+    ]
+  },
+  {
+    id: 'p19', cat: 'gongmun', t: '같은 규정을 사람마다 다르게 해석한다', rule: 1,
+    lead: '"작년에는 이렇게 했다"는 말이 네 명에게서 네 가지로 나온다.',
+    crit: '원문 → 담당 확인 → 글로 남긴 기준 1개. 구두 합의는 기준이 아닙니다.',
+    steps: [
+      '원문(학칙·지침)에서 해당 조항을 찾아 캡처합니다.',
+      '담당 부서(교무·연구·생활지도)에 확인합니다.',
+      '확인 결과를 "우리 학년 기준" 한 문장으로 만듭니다.',
+      '메신저로 전체 공유하고, 이후 답변은 그 문장만 씁니다.'
+    ],
+    dont: [
+      '"작년에는 이렇게 했다"로 기준을 삼지 않습니다.',
+      '사람마다 다른 답을 그때그때 주지 않습니다.',
+      '구두로만 정하고 넘어가지 않습니다.'
+    ],
+    msgs: [
+      { k: '담당 확인', t: '선생님, ○○ 규정 ○조 관련해 학년에서 기준을 하나로 맞추려 합니다. 저희는 "○○"으로 이해했는데 맞는지 확인 부탁드립니다. 다르면 정확한 문구를 알려주시면 그대로 안내하겠습니다.' },
+      { k: '학년 공유', t: '선생님들, ○○ 관련 기준 확인했습니다. "○○"입니다. 앞으로 이 건은 이 기준으로 안내 부탁드립니다. 원문은 ○○에 올렸습니다.' },
+      { k: '학부모', t: '어머님, ○○은 학교 규정상 ○○으로 운영됩니다. 개별로 다르게 적용하기 어려운 점 양해 부탁드립니다.' }
+    ]
+  },
+  {
+    id: 'p20', cat: 'gongmun', t: '공문 마감이 오늘인데 전달이 늦었다',
+    lead: '오후 2시에 받았고, 4시까지 취합이다. 담임들은 수업 중이다.',
+    crit: '늦은 사실을 숨기지 않고 무엇만 하면 되는지로 압축합니다. 사과 1줄 + 할 일 3줄.',
+    steps: [
+      '담임이 실제로 해야 하는 것만 3개 이하로 뽑습니다.',
+      '첫 줄에 사과와 마감 시각을 씁니다.',
+      '양식과 예시를 함께 보냅니다. 다시 묻지 않게.',
+      '제출 현황을 내가 취합해 대신 넘깁니다. 담임이 두 번 일하지 않게.'
+    ],
+    dont: [
+      '"공문이 늦게 와서"로 시작하지 않습니다.',
+      '긴 공문 원문을 그대로 전달하지 않습니다.',
+      '마감을 "최대한 빨리"로 쓰지 않습니다.'
+    ],
+    msgs: [
+      { k: '전달', t: '선생님들, 전달이 늦어 죄송합니다. ○○ 관련해서 오늘 ○시까지 필요한 것은 ①○○ ②○○ ③○○입니다. 양식은 ○○에 있습니다. 제가 취합해서 넘기겠습니다.' },
+      { k: '재촉', t: '선생님들, ○시 기준으로 12명 중 ○명 제출했습니다. 아직이신 선생님은 ○시까지 부탁드립니다. 어려우시면 제가 대신 작성하겠습니다.' },
+      { k: '사후', t: '선생님들, 늦게 전달드렸는데 ○시 전에 다 취합되었습니다. 감사합니다. 다음부터는 하루 전에 전달하겠습니다.' }
+    ]
+  },
+
+  {
+    id: 'p21', cat: 'haksaeng', t: '학교폭력 신고를 받았다', rule: 1,
+    lead: '아이가 조심스럽게 이야기를 꺼냈다. 아직 아무에게도 말하지 않았다고 한다.',
+    crit: '내가 판단하거나 중재하지 않습니다. 접수 → 즉시 보고 → 절차. 피해 학생 보호가 먼저입니다.',
+    steps: [
+      '이야기를 들은 시각·장소·한 말을 그대로 기록합니다. 유도 질문은 하지 않습니다.',
+      '교감 또는 학교폭력 담당에게 즉시 보고합니다. 30분 안에.',
+      '피해 학생이 안전한지 확인하고 같은 공간에 두지 않습니다.',
+      '이후 절차는 담당자 지시를 따릅니다. 학부모끼리 내가 연결하지 않습니다.'
+    ],
+    dont: [
+      '가해·피해 학생을 맞대면시켜 화해시키지 않습니다.',
+      '제보 내용을 당사자나 다른 학부모에게 전달하지 않습니다.',
+      '"장난이었겠지"로 축소하지 않습니다.'
+    ],
+    msgs: [
+      { k: '교감 보고', t: '교감선생님, 학교폭력 관련 신고를 접수했습니다. ○시 ○분 ○학년 학생이 ○○이라고 말했습니다. 현재 ○○ 조치했습니다. 담당자 안내에 따라 진행하겠습니다. 지금 통화 가능하십니까?' },
+      { k: '피해 학생에게', t: '선생님이 네 이야기 잘 들었어. 네가 잘못한 게 아니야. 지금부터는 선생님들이 같이 있을 거야. 무서우면 언제든 ○○로 와.' },
+      { k: '학부모에게', t: '어머님, 아이가 이야기한 내용을 접수해서 학교 절차에 따라 확인하고 있습니다. 확인 전에는 제가 결론을 말씀드리기 어렵습니다. 진행 상황은 담당 선생님을 통해 안내드리겠습니다.' }
+    ]
+  },
+  {
+    id: 'p22', cat: 'haksaeng', t: '아동학대가 의심된다', rule: 1,
+    lead: '며칠째 같은 옷이고, 팔에 자국이 있다. 아이가 말을 아낀다.',
+    crit: '의심 단계에서 절차 확인이 먼저입니다. 아이에게 캐묻지 않고 본 것을 그대로 기록합니다.',
+    steps: [
+      '본 것(자국·의복·말·태도)을 시간과 함께 객관적으로 기록합니다.',
+      '교감·아동학대 담당에게 즉시 알립니다.',
+      '아이에게 "왜 그랬어"를 반복해 묻지 않습니다. 안전을 확인합니다.',
+      '신고 여부와 방법은 담당자 지시를 따릅니다. 내가 학부모에게 먼저 확인 전화하지 않습니다.'
+    ],
+    dont: [
+      '학부모에게 먼저 "아이를 때렸냐"고 묻지 않습니다.',
+      '아이 말을 유도 심문하지 않습니다.',
+      '추측을 기록하지 않습니다. 본 것과 들은 것을 나눠 씁니다.'
+    ],
+    msgs: [
+      { k: '교감 보고', t: '교감선생님, 아동학대 의심 정황이 있어 알립니다. ○시에 ○○을 보았고 아이가 ○○라고 말했습니다. 제가 추가로 캐묻지는 않았습니다. 어떻게 진행할지 지침 부탁드립니다.' },
+      { k: '아이에게', t: '많이 아팠겠다. 선생님은 네 편이야. 지금은 아무것도 안 해도 돼. 같이 있어 줄게.' },
+      { k: '기록 형식', t: '○월 ○일 ○시 ○분, ○○(장소). 관찰: ○○. 학생 진술: "○○". 조치: ○○. 담당 보고: ○시 ○분.' }
+    ]
+  },
+  {
+    id: 'p23', cat: 'haksaeng', t: '반마다 기준이 달라 형평성 문제가 생긴다',
+    lead: '"옆 반은 안 그런다는데요" — 평가·과제·생활지도가 반마다 다르다.',
+    crit: '차이를 없애려 하지 말고 기준을 맞춥니다. 학년 공통 기준 한 장이 답입니다.',
+    steps: [
+      '무엇이 다른지 항목으로 나눕니다 — 평가·행사·생활지도·과제.',
+      '학년 공통 기준안을 한 장으로 만듭니다. 예/아니오로 판단되게.',
+      '협의회에서 확정하고 담임이 학부모에게 같은 문구로 안내합니다.',
+      '예외가 필요하면 학년에 먼저 알리고 기록합니다.'
+    ],
+    dont: [
+      '"선생님 재량"으로 두고 나중에 수습하지 않습니다.',
+      '항의가 온 반만 기준을 바꾸지 않습니다.',
+      '기준을 말로만 정하고 문서로 남기지 않습니다.'
+    ],
+    msgs: [
+      { k: '기준안 공유', t: '선생님들, 학년 공통 기준안 정리했습니다. ①○○은 ○○ ②○○은 ○○입니다. 이 기준에서 벗어나는 운영이 필요하면 먼저 저에게 알려주세요. 학년에서 맞춰 안내하겠습니다.' },
+      { k: '학부모', t: '어머님, ○○은 학년 공통 기준으로 ○○하게 운영하고 있습니다. 반마다 다르게 하면 아이들이 오히려 혼란스러워서 기준을 하나로 맞췄습니다.' },
+      { k: '담임에게', t: '선생님, ○반에서 ○○하게 운영 중이라고 들었습니다. 기준과 다르면 아이들·학부모 문의가 생길 수 있어 ○○으로 맞춰 주시면 좋겠습니다. 사정이 있으면 말씀해 주세요.' }
+    ]
+  },
+  {
+    id: 'p24', cat: 'haksaeng', t: '학년 행사 준비가 엉킨다',
+    lead: '체험학습이 일주일 남았는데 버스·동의서·안전계획이 각자 다르게 돌고 있다.',
+    crit: '안전·인원·예산·동의서 네 가지를 먼저 고정합니다. 나머지는 담당을 정해 넘깁니다.',
+    steps: [
+      '날짜·장소·인원·이동수단을 확정합니다.',
+      '안전계획·동의서·보험을 확인합니다. 작년 자료에서 복사합니다.',
+      '업무를 담당별로 나눠 기한과 함께 표로 공유합니다.',
+      '일주일 전과 하루 전, 두 번만 리마인드합니다.'
+    ],
+    dont: [
+      '세부 프로그램부터 정하지 않습니다. 안전·인원이 먼저입니다.',
+      '담당을 "다 같이"로 두지 않습니다.',
+      '동의서를 마지막에 받지 않습니다.'
+    ],
+    msgs: [
+      { k: '준비표 공유', t: '선생님들, ○○ 체험학습 준비표입니다. ①날짜·장소 ②인원·버스 ③안전계획(담당 ○○선생님, ○일까지) ④동의서(담당 ○○선생님, ○일까지) ⑤예산(제가). 표는 ○○에 있습니다.' },
+      { k: '리마인드', t: '선생님들, ○○ 체험학습 ○일 전입니다. ①동의서 제출 12명 중 ○명 ②버스 확정 ③우천 시 계획 확인 부탁드립니다. 당일 8시 30분 출발입니다.' },
+      { k: '돌발 변경', t: '선생님들, 오늘 우천으로 ○○으로 변경했습니다. 실내 활동으로 진행하고 귀가 시간은 같습니다. 학부모 안내는 제가 통일해서 보내겠습니다.' }
+    ]
+  },
+
+  {
+    id: 'p25', cat: 'minde', t: '말하기 전 3문 (즉답 습관 끊기)',
+    lead: '답이 빠른 게 미덕처럼 굴다가, 말실수를 되돌리느라 하루가 간다.',
+    crit: '옳은가 → 꼭 해야 하는가 → 친절한가. 셋을 통과한 말만 합니다. 하나라도 걸리면 보류가 답입니다.',
+    steps: [
+      '사실인지 확인합니다. 내가 아는 것과 추측을 나눕니다.',
+      '지금 말해야 하는지 묻습니다. 내일 해도 되는 말은 내일 합니다.',
+      '표현을 고릅니다. 내용은 그대로 두고 말투만 바꿉니다.'
+    ],
+    dont: [
+      '감정이 올라온 상태로 답하지 않습니다.',
+      '카톡으로 즉답하지 않습니다. 전화나 대면이 나을 일이 많습니다.',
+      '"내가 말 안 하면 누가 하나"로 다 떠안지 않습니다.'
+    ],
+    msgs: [
+      { k: '정석', t: '확인 후 오늘 퇴근 전까지 말씀드리겠습니다.' },
+      { k: '부드럽게', t: '제가 정확히 확인하고 말씀드리는 게 좋을 것 같아요. 오늘 안으로 다시 연락드릴게요.' },
+      { k: '단호하게', t: '지금 답을 드리면 부정확할 수 있습니다. 확인 후 내일 오전까지 드리겠습니다.' }
+    ]
+  },
+  {
+    id: 'p26', cat: 'minde', t: '힘든 일이 있었다 (퇴근길 정리)',
+    lead: '오늘 어떤 선생님 말에 계속 마음이 걸린다.',
+    crit: '여기서 쏟고, 내일은 행동만 가져갑니다. 싫은 마음이 있어도 됩니다.',
+    steps: [
+      '있었던 일을 사실만 세 줄로 씁니다.',
+      '내가 통제할 수 있는 것과 없는 것을 나눕니다.',
+      '"내일 할 행동" 하나만 정합니다.',
+      '나머지는 주간 점검으로 넘깁니다.'
+    ],
+    dont: [
+      '퇴근 후 그 사람을 다시 떠올리며 메시지를 쓰지 않습니다.',
+      '집에서 업무 이야기로 가족에게 쏟지 않습니다.',
+      '오늘 안에 결론을 내려 하지 않습니다.'
+    ],
+    msgs: [
+      { k: '자기 기록', t: '오늘: ○○. 내가 통제할 수 있었던 것: ○○. 없었던 것: ○○. 내일 할 것: ○○.' },
+      { k: '가족에게', t: '오늘 좀 힘든 일이 있었어. 30분만 좀 쉬었다가 이야기할게.' },
+      { k: '동료에게', t: '오늘 ○○ 건으로 좀 힘들었어요. 내일 다시 정리해서 말씀드릴게요.' }
+    ]
+  },
+  {
+    id: 'p27', cat: 'minde', t: '결정 전 3분 리허설',
+    lead: '내일 협의회에서 정해야 한다. 반대가 나올 게 뻔하다.',
+    crit: '반박을 미리 들어 두면 현장에서 덜 흔들립니다. 근거를 말로 할 수 있으면 그 결정은 단단합니다.',
+    steps: [
+      '반대하는 사람이 가장 먼저 할 말을 세 개 적습니다.',
+      '각 반박에 기준으로 답할 수 있는지 확인합니다.',
+      '답이 안 되는 반박이 있으면 결정을 미루거나 범위를 줄입니다.',
+      '결정문에 이유 한 줄을 붙여 둡니다.'
+    ],
+    dont: [
+      '"어차피 불만이 있을 것"이라며 근거를 생략하지 않습니다.',
+      '모두를 만족시키려 결정을 흐리지 않습니다.',
+      '반대한 사람을 기록에 남기지 않습니다.'
+    ],
+    msgs: [
+      { k: '결정 공지', t: '선생님들, ○○을 ○○으로 정했습니다. 이유는 ○○입니다. ○○이 우려되시는 분은 ○일까지 말씀해 주세요. 그때까지 의견 반영해 다시 확인하겠습니다.' },
+      { k: '반박에 답하기', t: '그 점은 제가 놓쳤을 수 있습니다. 다만 ○○ 기준에서는 지금 결정이 맞다고 봅니다. ○○ 부분만 보완하겠습니다.' }
+    ]
+  },
+  {
+    id: 'p28', cat: 'minde', t: '거절 연습 · 지친 신호 점검',
+    lead: '부탁을 다 받아 주다 보니 내 일이 밤으로 밀린다.',
+    crit: '지친 건 약해서가 아니라 신호입니다. 거절도 업무입니다.',
+    steps: [
+      '요즘 잠·식사·짜증·집중 중 두 가지 이상 무너졌으면 경고로 봅니다.',
+      '거절은 "안 된다 + 이유 + 대안" 세 조각으로 합니다.',
+      '이번 주에 내려놓을 일 하나를 정합니다.',
+      '도움을 청할 사람 한 명을 정해 실제로 말합니다.'
+    ],
+    dont: [
+      '"제가 안 하면 안 되니까"로 다 떠안지 않습니다.',
+      '거절할 때 사과를 세 번 하지 않습니다.',
+      '지친 걸 숨기고 더 버티지 않습니다.'
+    ],
+    msgs: [
+      { k: '업무 거절', t: '이번 건은 제가 맡기 어렵습니다. 지금 ○○ 마감이 겹쳐서요. 대신 ○○까지는 도와드릴 수 있습니다. ○○선생님께 함께 부탁드리면 좋겠습니다.' },
+      { k: '부탁 거절', t: '지금은 어렵습니다. 다음 주 화요일이면 가능합니다. 그때로 잡아도 될까요?' },
+      { k: '도움 청하기', t: '제가 요즘 ○○이 버거워서 그러는데 ○○ 부분만 잠깐 도와주실 수 있을까요? 방법을 몰라서가 아니라 시간이 부족해서입니다.' }
+    ]
+  },
+  {
+    id: 'p29', cat: 'minde', t: '주간 점검 10분',
+    lead: '금요일 퇴근 전, 이번 주가 어떻게 지나갔는지 기억이 없다.',
+    crit: '10분이면 충분합니다. 완벽하지 않아도 합니다. 이 10분이 다음 주를 가볍게 만듭니다.',
+    steps: [
+      '이번 주 미결·누락을 훑습니다. 데스크의 트래커를 봅니다.',
+      '다음 주 큰 일 세 개를 캘린더에 먼저 넣습니다.',
+      '이번 주 배운 것 한 줄을 사례 노트에 남깁니다.',
+      '다음 주에 하지 않을 일 하나를 정합니다.'
+    ],
+    dont: [
+      '반성문을 쓰지 않습니다. 사실과 다음 행동만.',
+      '지난 일을 다시 판단하지 않습니다.',
+      '바쁘면 건너뛰지 않습니다. 3분으로 줄여서라도 합니다.'
+    ],
+    msgs: [
+      { k: '자기 기록', t: '이번 주 끝낸 것: ○○. 남은 것: ○○. 다음 주 큰 일: ①○○ ②○○ ③○○. 배운 것: ○○. 안 할 것: ○○.' },
+      { k: '월요일 첫 5분', t: '이번 주 첫 일은 ○○입니다. ○일까지 ○○, ○일까지 ○○이니 오늘은 ○○만 하면 됩니다.' }
+    ]
+  }
+];
+
+/* 학년부장 10원칙 — 흔들릴 때 돌아갈 기준 */
+var PRINCIPLES = [
+  { t: '기준이 먼저, 사람은 그다음', d: '공개된 기준이 나를 지켜 줍니다.' },
+  { t: '학년 기준은 협의로 만든다', d: '혼자 정한 기준은 혼자 지게 됩니다.' },
+  { t: '내가 다 하지 않는다', d: '담당과 기한을 정하는 게 내 일입니다.' },
+  { t: '사실만 쓴다', d: '해석과 판단은 담임과 절차에 맡깁니다.' },
+  { t: '막아서기보다 흐름을 만든다', d: '내가 없어도 굴러가게 설계합니다.' },
+  { t: '부탁은 일이지 빚이 아니다', d: '짧고 분명하게, 미안해하지 않고.' },
+  { t: '먼저 알리면 반은 지킨 것', d: '늦은 보고는 보고가 아닙니다.' },
+  { t: '받은 날 정리한다', d: '미루면 두 배가 됩니다.' },
+  { t: '해결보다 사실 확인과 알림', d: '내가 판단할 자리와 아닌 자리를 가릅니다.' },
+  { t: '오늘의 헤맴이 내년의 한 장', d: '사례 한 줄이 다음 사람을 살립니다.' }
+];
+
+/* 함께 해내는 마음가짐 */
+var MINDSET = [
+  { t: '싫은 마음과 행동을 분리한다', d: '싫다는 마음은 사실일 수 있습니다. 다만 표정과 말투는 고를 수 있습니다. 마음은 한 줄로 적어 두고 행동만 정합니다.' },
+  { t: '말투 말고 내용만 받는다', d: '관리자의 말은 정답이 아니라 정보와 요구입니다. 요구사항·기한·내 몫만 가져오고 나머지는 흘립니다.' },
+  { t: '사람을 챙기는 대신 일이 굴러가게 만든다', d: '요청이 분명하고 담당과 기한이 보이면 챙길 일이 줄어듭니다.' },
+  { t: '모르는 건 정상이다', d: '부장은 모든 답을 아는 사람이 아니라 누구에게 어떻게 묻는지 아는 사람입니다.' },
+  { t: '혼자 다 하지 않는다', d: '일을 가장 잘하는 사람이 아니라 일이 잘되게 만드는 사람이 부장입니다.' },
+  { t: '평판은 기분이 아니라 반복이다', d: '약속을 지키고, 기록하고, 같은 기준을 적용하기. 한 번 실수해도 이 세 가지가 있으면 회복됩니다.' },
+  { t: '받았던 것을 안다', d: '평교사 때 누렸던 것을 알아차리는 건 자책이 아니라 성숙의 시작입니다.' },
+  { t: '이 일로 자라는 것', d: '조율·결정·거절·위임·갈등 다루기. 이 1년은 어느 자리에서든 쓰는 힘을 키웁니다.' }
+];
+
+/* 동학년 스몰토크 */
+var SMALLTALK = [
+  { s: '단둘이 있을 때', note: '침묵은 어색한 게 아니라 각자 일하는 시간입니다. 10초쯤 조용한 건 정상이고, 손을 움직이면(차 따르기, 정리) 훨씬 편합니다.',
+    p: ['차 한잔하실래요? 물 끓였어요.', '이거 드셔 보세요.', '오늘 일이 좀 많죠?', '창문 잠깐 열어도 될까요?', '혹시 이 공문, 어떻게 처리하셨어요?', '오늘 우리 반에서 좀 웃긴 일이 있었어요.'] },
+  { s: '아침·복도', note: '인사에 한마디만 붙입니다. 대답을 기다리면 됩니다.',
+    p: ['안녕하세요. 오늘 좀 춥죠?', '일찍 오셨네요.', '오늘 애들 좀 들떠 있죠?', '벌써 금요일이네요.', '커피 드셨어요?', '주말 잘 쉬셨어요?'] },
+  { s: '점심·쉬는 시간', note: '짧게, 가볍게. 해결하거나 의견을 덧붙이지 않습니다.',
+    p: ['점심 드셨어요?', '오늘 급식 괜찮던데요.', '이거 하나 드세요.', '쉬는 시간이 왜 이렇게 짧은지 모르겠어요.', '오늘은 시간이 좀 빨리 가네요.'] },
+  { s: '협의회 전후', note: '시작과 끝을 내가 정하면 회의가 짧아집니다.',
+    p: ['다 오셨네요. 커피 한잔하고 시작할까요?', '오늘 안건은 많지 않아요. 금방 끝날 거예요.', '더 하실 말씀 있으세요? 없으면 마칠게요.', '고생하셨어요. 오늘은 이 정도면 됐네요.'] },
+  { s: '행사·시험 뒤', note: '끝난 뒤 한마디가 다음 행사를 쉽게 만듭니다.',
+    p: ['끝났네요. 다들 고생 많으셨어요.', '생각보다 무난하게 지나갔죠?', '이제 한숨 돌렸네요.', '애들 오늘 많이 피곤하겠어요.', '오늘은 일찍 퇴근하세요.'] },
+  { s: '퇴근·마무리', note: '끝내는 말을 미리 정해 두면 길어지지 않습니다.',
+    p: ['오늘도 수고하셨어요.', '먼저 가겠습니다. 내일 봬요.', '주말 잘 보내세요.', '비 오는데 조심해서 가세요.', '저는 이것만 정리하고 갈게요.'] },
+  { s: '지쳐 보일 때', note: '해결해 주려 하지 말고 한 번 묻고 들어 줍니다.',
+    p: ['요즘 많이 바쁘시죠?', '혹시 제가 도울 일 있으면 말씀하세요.', '어제 그 일, 덕분에 잘 끝났어요.', '그 건은 제가 알아볼게요.', '무리하지 마세요.'] },
+  { s: '날씨·시기', note: '가장 안전한 주제. 두 번 왕복이면 충분합니다.',
+    p: ['벌써 11월이네요. 시간 참 빠르죠?', '비 오는 날은 애들이 더 정신없어요.', '환절기라 감기 걸린 애들 많죠?', '시험 기간이라 다들 예민하죠?', '방학이 얼른 왔으면 좋겠어요.'] }
+];
+
+var SMALL_RULES = [
+  '시작은 눈에 보이는 것 하나 — 날씨, 아이들, 급식, 시간.',
+  '상대 대답을 기다립니다. 길게 안 해도 됩니다.',
+  '"아 그랬어요?"면 충분합니다. 의견을 덧붙이지 않습니다.',
+  '왕복 두 번이면 끝. 끝내는 말을 미리 정해 둡니다.'
+];
+
+var AVOID_TOPICS = '나이·결혼·출산·자녀 비교 / 성과·평가·연봉 / 다른 선생님 이야기 / 정치·종교';
+
+/* 검색 보조 — 교사들이 실제로 치는 줄임말 */
+var SEARCH_ALIASES = {
+  '학폭': ['학교폭력'], '왕따': ['학교폭력', '맞대면'], '학대': ['아동학대'],
+  '어머니': ['학부모', '어머님'], '학부모님': ['학부모'], '엄마': ['학부모'],
+  '전화': ['전화', '통화'], '카톡': ['메신저', '단체방', '카톡'], '문자': ['문자', '메신저'],
+  '담임': ['담임', '교사'], '동료': ['교사', '동학년'], '선생님': ['교사', '선생님'],
+  '회의': ['협의회', '회의'], '협의': ['협의회'], '안건': ['안건'], '공지': ['공지', '안내'],
+  '공문': ['공문'], '규정': ['규정', '학칙', '지침'], '지침': ['지침', '규정'],
+  '시간표': ['시간표', '전담', '특별실'], '시수': ['시수', '창체'], '이지에듀': ['이지에듀', '교육과정', '진도표'],
+  '창체': ['창체'], '체험학습': ['체험학습', '행사'], '수업': ['수업', '공개수업'],
+  '보고': ['보고'], '교감': ['교감'], '교장': ['교장', '관리자'], '관리자': ['관리자', '교감'],
+  '감정': ['감정', '마음'], '마음': ['마음', '감정'], '거절': ['거절'], '갈등': ['갈등', '중재'],
+  '중재': ['중재'], '형평': ['형평', '불균형'], '불균형': ['불균형', '형평'],
+  '뒷담': ['뒷담', '소문'], '소문': ['소문'], '신입': ['저경력', '경력'], '저경력': ['저경력'],
+  '결정': ['결정'], '리허설': ['리허설'], '점검': ['점검'], '주간': ['주간'],
+  '스몰토크': ['스몰토크'], '인사': ['스몰토크', '인사'], '침묵': ['침묵'],
+  '업무': ['업무'], '경감': ['경감'], '분장': ['분장', '업무'], '회식': ['스몰토크'],
+  '사고': ['다쳐', '안전'], '다침': ['다쳐'], '안전': ['안전'], '민원': ['민원'],
+  '퇴사': ['지친', '번아웃'], '지침': ['지침', '규정'], '힘듦': ['지친', '힘든']
+};
+
+/* 상황마다 붙는 마음 세팅 — 흔들릴 때 돌아갈 한 줄과 키우는 힘 */
+var MIND = {
+  p01: ['항의는 나를 공격하는 게 아니라 걱정을 말하는 중입니다.', '감정을 떼어 놓고 듣는 힘'],
+  p02: ['지금 내가 할 일은 판단이 아니라 순서입니다.', '당황하지 않는 힘'],
+  p03: ['공개된 자리에서 이기면 더 크게 집니다.', '흔들리지 않는 힘'],
+  p04: ['학년의 답은 하나여야 합니다. 다르면 그게 다음 민원입니다.', '기준을 세우는 힘'],
+  p05: ['내 권한 밖의 일을 해결하려 하면, 나중에 내가 문제가 됩니다.', '경계를 지키는 힘'],
+  p06: ['거절은 나를 향한 게 아니라 그분의 사정일 수 있습니다.', '분명하게 요청하는 힘'],
+  p07: ['챙기는 게 아니라 일이 굴러가게 설계하는 중입니다.', '일을 설계하는 힘'],
+  p08: ['이기려 하지 말고 지킬 것 하나만 정합니다.', '갈등 속에서 중심 잡는 힘'],
+  p09: ['기준을 먼저 말하면 변명할 일이 줄어듭니다.', '공정한 기준을 말하는 힘'],
+  p10: ['중재자는 편을 드는 사람이 아니라 순서를 정하는 사람입니다.', '중재하는 힘'],
+  p11: ['들은 것과 확인된 것은 다릅니다. 말을 아끼는 것도 대응입니다.', '말을 아끼는 힘'],
+  p12: ['다 구해 줄 필요는 없습니다. 한 번 묻고 들어 주면 됩니다.', '살피고 들어 주는 힘'],
+  p13: ['내가 답을 주는 자리가 아니라 같이 정하는 자리입니다.', '함께 결정하는 힘'],
+  p14: ['받는 것과 떠안는 것은 다릅니다.', '조건을 말하는 힘'],
+  p15: ['감정 대신 숫자로 말할 때 가장 셉니다.', '근거로 요청하는 힘'],
+  p16: ['먼저 알리면 반은 지킨 것입니다.', '미리 알리는 힘'],
+  p17: ['그분의 형식에 맞추는 건 굽히는 게 아니라 빨리 끝내는 방법입니다.', '형식을 읽는 힘'],
+  p18: ['모르는 걸 아는 척할 때 가장 위험해집니다.', '확인하고 묻는 힘'],
+  p19: ['원문과 담당자, 그다음이 내 판단입니다.', '사실을 구분하는 힘'],
+  p20: ['늦은 건 인정하고, 할 일만 남깁니다.', '사과하고 정리하는 힘'],
+  p21: ['내가 판단하지 않습니다. 절차를 따르고 바로 알립니다.', '절차를 지키는 힘'],
+  p22: ['의심은 내 몫, 판단은 절차의 몫입니다.', '아이를 지키는 힘'],
+  p23: ['차이를 없애려 하지 말고 기준을 맞춥니다.', '공정하게 조율하는 힘'],
+  p24: ['완벽한 계획 말고, 놓치지 않는 목록이면 충분합니다.', '미리 챙기는 힘'],
+  p25: ['답이 빠른 게 미덕이 아닙니다. 말이 정확한 게 미덕입니다.', '즉답을 참는 힘'],
+  p26: ['여기서 쏟고, 내일은 행동만 가져갑니다.', '감정을 다루는 힘'],
+  p27: ['반박을 미리 들어 두면 현장에서 덜 흔들립니다.', '결정을 단단하게 하는 힘'],
+  p28: ['지친 건 약해서가 아니라 신호입니다. 거절도 업무입니다.', '나를 지키는 힘'],
+  p29: ['10분이면 충분합니다. 완벽하지 않아도 합니다.', '꾸준히 돌아보는 힘']
+};
+
+/* 부장 참모 — 데스크·회의·교육과정 데이터 */
+
+/* 즉답 보류 문구 (10초 브레이크) */
+var HOLD_PHRASES = [
+  { k: '기본', t: '확인 후 오늘 퇴근 전까지 말씀드리겠습니다.' },
+  { k: '학년 기준', t: '동학년 협의 후 기준 맞춰 안내드리겠습니다.' },
+  { k: '담당 확인', t: '담당 선생님께 확인하고 내일 오전까지 연락드리겠습니다.' },
+  { k: '감정 있을 때', t: '지금 말씀드리면 감정이 섞일 것 같습니다. 정리해서 다시 말씀드리겠습니다.' }
+];
+
+var HOLD_QUESTIONS = [
+  { t: '옳은가', d: '사실인가? 추측인가?' },
+  { t: '필요한가', d: '지금 말해야 하나? 내일도 되나?' },
+  { t: '친절한가', d: '내용은 같고 말투만 고칠 수 있나?' }
+];
+
+/* 출근 후 5분 / 퇴근 전 5분 */
+var DAILY_CHECKS = [
+  {
+    id: 'am', title: '출근 후 5분', sub: '오늘 하루의 지도',
+    items: [
+      '오늘 마감과 일정을 캘린더에서 확인했다',
+      '어제 넘긴 일(답 못 한 연락, 확인 예정 건)을 열어 봤다',
+      '반드시 끝낼 일과 오늘 안 끝나도 되는 일을 나눴다',
+      '돌발 업무를 받을 30분을 비워 뒀다',
+      '오늘 만날 사람(관리자, 담임)에게 할 말을 미리 정리했다'
+    ]
+  },
+  {
+    id: 'pm', title: '퇴근 전 5분', sub: '내일을 가볍게 만드는 마무리',
+    items: [
+      '오늘 들어온 요청과 결정을 시트(또는 트래커)에 옮겼다',
+      '구두로 정한 것을 메신저에 한 줄 남겼다',
+      '머릿속에 남은 일마다 다음 행동과 시점을 적었다',
+      '답 못 한 연락에 회신 예정 시점을 정했다',
+      '맡긴 일의 담당자와 기한을 확인했다',
+      '내일 가장 먼저 할 일 하나를 정했다',
+      '오늘 처리한 일 중 다시 생길 일은 사례 한 줄로 남겼다',
+      '오늘 한 말이 3문(옳은가·필요한가·친절한가)을 통과했는지 돌아봤다',
+      '마음에 걸린 일을 한 줄 적었다'
+    ]
+  }
+];
+
+/* 회의 3단계 */
+var MEETING_STEPS = [
+  { t: '회의 전 — 하루 전 초안 공유', d: '안건, 내 제안, 오늘 정할 것 세 줄을 문서로 먼저 보냅니다. 읽고 온 사람이 있으면 회의가 절반 줄어듭니다.', k: '하루 전' },
+  { t: '회의 중 — 3분 설명 + 구체 질문', d: '안건마다 내 설명은 3분을 넘기지 않습니다. 질문은 "A와 B 중 어느 쪽"으로 좁혀 묻습니다.', k: '본회의 20~30분' },
+  { t: '회의 후 — 확정·보류·담당·기한 한 줄 공지', d: '정한 것과 정하지 못한 것을 구분해 한 줄씩 남깁니다. 담당과 기한이 없으면 그 결정은 사라집니다.', k: '당일 안에' }
+];
+
+/* 2~3월 학년 초 로드맵 */
+var ROADMAP = [
+  { id: 'r1', when: '2월 1~2주', t: '인수인계와 재료 모으기', items: [
+    '작년 학년부장 자료·분장표·교육과정 파일 받기',
+    '작년 협의회 기록에서 반복된 쟁점 확인',
+    '올해 학사일정·학교 교육과정 지침 확인',
+    '학년 담임 명단과 전담·특별실 배정 확인'
+  ] },
+  { id: 'r2', when: '2월 2~3주', t: '교육과정 편성 (이지에듀)', items: [
+    '교육과정 탭의 1~8단계 순서대로 진행',
+    '학년 행사·단축수업 날짜 확정',
+    '창체 시수 편차 0 만들기',
+    '범교과 51시수 배분'
+  ] },
+  { id: 'r3', when: '2월 3~4주', t: '기준 만들기', items: [
+    '업무 분장 기준표(시수·부담·이월) 만들기',
+    '학년 공통 생활지도 기준 1장',
+    '평가 계획·수행평가 일정 초안',
+    '협의회 1차 안건 초안 공유'
+  ] },
+  { id: 'r4', when: '2월 말', t: '첫 협의회', items: [
+    '분장 확정과 공지(기준과 이유 함께)',
+    '학년 행사 일정 확정',
+    '담임별 준비물·자료 전달',
+    '비상 연락·보고 체계 정리'
+  ] },
+  { id: 'r5', when: '3월 1주', t: '학급 교육과정과 시간표', items: [
+    '반별 시간표 전담·특별실 겹침 확인',
+    '학급 교육과정 작성 안내',
+    '교과서·교재 배부 확인',
+    '학부모 상담 주간 계획'
+  ] },
+  { id: 'r6', when: '3월 2주', t: '학부모 접점 준비', items: [
+    '학년 공통 가정통신문 문구 정리',
+    '상담 주간 일정·신청 방식 공지',
+    '민원 대응 공통 문구 공유',
+    '학교폭력·아동학대 보고 절차 재확인'
+  ] },
+  { id: 'r7', when: '3월 3주', t: '수업과 평가', items: [
+    '공개수업 일정·과목 조정',
+    '수행평가 계획 취합',
+    '학년 공통 과제·평가 기준 확인',
+    '교과 진도 점검(2주 지연 여부)'
+  ] },
+  { id: 'r8', when: '3월 4주', t: '첫 달 점검', items: [
+    '학년 운영 1개월 점검(민원·갈등·누락)',
+    '업무 부담 재배분 여부 확인',
+    '4월 행사·평가 준비',
+    '내 사례 노트에 3월 배운 것 남기기'
+  ] }
+];
+
+/* 10대 업무 영역 마스터 */
+var AREAS = [
+  { id: 'a1', name: '업무분장·연간계획', when: '3월 전에', check: '작년 분장표, 공문 기한, 올해 달라진 점', help: '교감·교무부·전년도 학년부장', deliver: '기준과 이유를 함께 3월 초에 공지하고 표로 공유', risk: '불균형 불만 → 기준표를 먼저 공개하고 같은 잣대로 답', rule: 0 },
+  { id: 'a2', name: '교육과정·학년운영', when: '2월 중', check: '학년 교육과정 계획, 평가 일정, 학교 공통 지침', help: '교육과정 담당·교무부장', deliver: '협의회 안건으로 올려 결정하고 메신저에 남김', risk: '반 간 기준 차이 → 학년 공통 기준안을 미리', rule: 0 },
+  { id: 'a3', name: '학년공통업무', when: '행사·평가 전', check: '일정, 예산, 안전 계획 필요 여부', help: '해당 업무 담당자·작년 담당 담임', deliver: '담당과 기한을 표에 적고 캘린더 등록', risk: '담당자 지연 → 기한 이틀 전 확인 문자', rule: 0 },
+  { id: 'a4', name: '학생생활지도', when: '수시', check: '사실, 시점, 관련 학생 수, 긴급도', help: '담임·생활지도 담당·상담교사·교감', deliver: '사실 위주로 짧게, 구두 지시는 메신저에 한 줄', risk: '학교폭력·학대 의심 → 규정 절차 우선, 즉시 교감', rule: 1 },
+  { id: 'a5', name: '학부모·민원', when: '수시', check: '요구와 사실 분리, 이미 대응한 사람 확인', help: '담임·교감·민원 담당', deliver: '담임 대응 원칙과 학년 보고 기준을 미리 공유', risk: '한 반 민원이 학년으로 확산 → 응대 문구 통일', rule: 1 },
+  { id: 'a6', name: '교직원·업무협조', when: '수시', check: '누구 몫인지, 마감, 상대 업무량', help: '중재가 필요하면 교감·동료 부장', deliver: '"무엇을·언제까지·왜"가 담긴 요청 문구', risk: '협조 거부 → 이유를 나눠 한 번 더, 그다음 관리자', rule: 0 },
+  { id: 'a7', name: '관리자 보고', when: '수시', check: '결정이 필요한 일인지 공유만 할 일인지', help: '교감·선배 부장에게 보고 방식 확인', deliver: '결론·근거·요청 순서로 한 장', risk: '보고 지연 → 진행 중이어도 먼저 한 줄 공유', rule: 0 },
+  { id: 'a8', name: '공문·규정·지침', when: '접수 당일', check: '기한, 우리 학년 해당 여부, 담임 전달사항', help: '업무 담당자·교감·교육청 담당', deliver: '받은 당일 정리, 다음 날 오전까지 전달', risk: '규정 모호 → 확인 질문 먼저, 답 전엔 임시 안내', rule: 1 },
+  { id: 'a9', name: '돌발상황·대응사례', when: '수시', check: '사실, 긴급도, 안전, 지금 결정할 일인지', help: '교감에게 먼저 알리고 담당 부서 찾기', deliver: '사실·조치·요청 순서로 짧게', risk: '같은 일 반복 → 상황·한 일·결과·다음엔 네 줄로 남김', rule: 0 },
+  { id: 'a10', name: '업무매뉴얼·인수인계', when: '12월~2월', check: '반복될 일과 헤맸던 일', help: '공문 기록·동료 부장의 경험', deliver: '내년 부장이 읽을 한 장', risk: '기록 없음 → 퇴근 전 체크에 사례 한 줄', rule: 0 }
+];
+
+/* 이지에듀 편성 1~8단계 (3단계 뒤에 ! 단축수업 확인) */
+var CUR_STEPS = [
+  { n: 1, t: '이지에듀 연구부장 다운', items: ['학년별 전체 시수 확인하기'] },
+  { n: 2, t: '학년 행사 넣기', items: ['학년 행사를 이지에듀에 입력 (그 날 고정되는 것)'] },
+  { n: 3, t: '창체(자동진) 시수편차 0 만들고 내용 넣기', items: [
+    '특별한 주간 등 창체를 주별로 먼저 맞추기',
+    '학년 행사가 있으면 반영하기',
+    '교과와 창체를 적절히 섞기',
+    '1학기 교과시수 부족 시 창체 감축 → 2학기에 더 이수해 편차 0'
+  ], tip: '창체는 학기별 이수시간이 정해져 있지 않아 조정할 수 있습니다.' },
+  { n: '!', t: '단축수업 날짜 확인', items: ['단축수업 날짜 확인 (학년군 부장과 논의)'], note: '확인한 날짜는 동학년 안내와 반별 시간표에 그대로 씁니다.' },
+  { n: 4, t: '블록 드래그 후 넘치는 교과 시수 감축', items: [
+    '넘치는 교과목 시수 감축 (지도서 차시를 꼭 따를 필요 없음)',
+    '교과서 회사 확인'
+  ] },
+  { n: 5, t: '범교과 51시수 관련지도영역에 넣기', sub: '관련지도영역 1·2·3', items: [
+    '1·2학기에 시간을 적절히 나누기',
+    '안전 관련은 단독 차시로 넣기 (학교 확인)',
+    '나머지는 한 차시에 3개까지 넣기'
+  ] },
+  { n: 6, t: '이지에듀 업로드', items: [
+    '진도표에 학습내용 추가 시 작년 교육과정 기록 복사·붙여넣기',
+    '조정 후 이지에듀에 업로드'
+  ] },
+  { n: 7, t: '학년교육과정 한글 파일 작성', items: ['평가 계획 등을 작년 것 복사해서 붙여넣기'] },
+  { n: 8, t: '동학년에게 공지 전달', items: ['연간시간운영계획을 보여주며 안내', '학년 자료만 다운받도록 안내'] }
+];
+
+var CUR_PRINCIPLES = [
+  { t: '행사에 고정 vs 진도표에 고정', d: '그 날 반드시 해야 하는 것 → 이지에듀 행사에 고정.\n그 주 안에서 학급별로 옮길 수 있는 것 → 교육과정 진도표에 고정.' },
+  { t: '1학기 부족 → 창체 감축, 2학기 보충', d: '교과는 학기별 이수시간이 정해져 있지만 창체는 정해져 있지 않습니다. 1학기 창체를 줄이고 2학기에 더 이수해 편차를 0으로.' },
+  { t: '전담·특별실 겹침 방지', d: '전담 시간과 특별실 사용 시간을 먼저 확인한 뒤 반별 시간표를 짭니다.' },
+  { t: '동학년 분담', d: '학년부장이 혼자 다 하지 않습니다. 활동별 시간표를 시트로 공유해 함께 맞춥니다.' }
+];
+
+var CUR_HANDOFF = [
+  '단축수업 날짜 안내 (언제부터인지)',
+  '전담 수업을 고려한 반별 시간표 작성 안내 (특별실 사용시간 고려)',
+  '전담시간이 겹치지 않도록 학급 교육과정 구성',
+  '공개수업 과목 미리 조정 및 고정 (학교에 따라 다름)',
+  '연간시간표 안내',
+  '연간시수표 안내',
+  '중요사항은 색을 다르게 표시해서 인쇄 안내 (시수표·시간표)'
+];
+
+var CUR_FINISH = [
+  '학년별 전체 시수',
+  '주별 시수',
+  '과목별 전체 시수',
+  '학기별 시수'
+];
+
+/* 부장 참모 — 앱 로직 */
+(function () {
+  'use strict';
+
+  var APP_NAME = '부장 참모';
+  var LS = 'bc2_state', LS_SNAP = 'bc2_snaps', LS_THEME = 'bc2_theme';
+  var URL_KEY = 'bc2_sheet_url', AUTO_KEY = 'bc2_auto_sync', LAST_KEY = 'bc2_last_sync', EDIT_KEY = 'bc2_edit_at';
+  var PUSH_DELAY = 1500, PULL_GAP = 6000, SKEW = 2000;
+
+  /* ------------------------------------------------------------------ 도우미 */
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function ymd(d) { d = d || new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function parseYmd(s) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ''));
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+  }
+  function dayDiff(a, b) {
+    var x = parseYmd(a), y = parseYmd(b);
+    if (!x || !y) return null;
+    return Math.round((x.getTime() - y.getTime()) / 86400000);
+  }
+  var WD = ['일', '월', '화', '수', '목', '금', '토'];
+  function fmtKorean(s) {
+    var d = parseYmd(s); if (!d) return s || '';
+    return (d.getMonth() + 1) + '월 ' + d.getDate() + '일 (' + WD[d.getDay()] + ')';
+  }
+  function fmtShort(s) {
+    var d = parseYmd(s); if (!d) return '';
+    return (d.getMonth() + 1) + '/' + d.getDate();
+  }
+  function fmtStamp(iso) {
+    var d = new Date(iso); if (isNaN(d)) return '';
+    return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+  function uid(p) { return (p || 'x') + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function lsGet(k, d) { try { var v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
+  function tsOf(v) { var t = Date.parse(String(v || '')); return isNaN(t) ? 0 : t; }
+
+  /* ------------------------------------------------------------------ 상태 */
+  function blank() {
+    return {
+      v: 2, items: [], ck: {}, notes: {}, cur: {}, areas: {}, road: {},
+      meetings: [], mdraft: null, sheetUrl: '', docUrl: '', autoSync: true, updatedAt: ''
+    };
+  }
+  var S = blank();
+  try {
+    var raw = localStorage.getItem(LS);
+    if (raw) {
+      var p = JSON.parse(raw);
+      if (p && typeof p === 'object') {
+        Object.keys(blank()).forEach(function (k) { if (p[k] !== undefined) S[k] = p[k]; });
+        if (!S.mdraft) S.mdraft = null;
+        // 예전 버전에서 활동별 시트 주소를 동기화 주소로 쓰던 값 분리
+        if (!S.docUrl && /docs\.google\.com|drive\.google\.com/.test(String(S.sheetUrl || ''))) {
+          S.docUrl = S.sheetUrl; S.sheetUrl = '';
+        }
+      }
+    }
+  } catch (e) { }
+
+  function persist(opts) {
+    opts = opts || {};
+    var today = ymd();
+    var keys = Object.keys(S.ck || {});
+    if (keys.length > 24) {
+      keys.sort().slice(0, keys.length - 24).forEach(function (k) { delete S.ck[k]; });
+    }
+    if (S.items.length > 400) S.items = S.items.slice(0, 400);
+    S.updatedAt = new Date().toISOString();
+    lsSet(LS, JSON.stringify(S));
+    if (!opts.silent) markEdit();
+  }
+
+  /* ------------------------------------------------------------------ 테마 */
+  function themePref() { return lsGet(LS_THEME, 'auto'); }
+  function applyTheme() {
+    var t = themePref(), r = document.documentElement;
+    if (t === 'light' || t === 'dark') r.setAttribute('data-theme', t);
+    else r.removeAttribute('data-theme');
+    $$('[data-act="theme"]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.theme === t));
+    });
+  }
+
+  /* ------------------------------------------------------------------ 토스트 / 시트 */
+  var toastTimer = null;
+  function toast(msg) {
+    var el = $('#toast');
+    if (!el) { el = document.createElement('div'); el.id = 'toast'; el.className = 'toast'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2000);
+  }
+  var lastFocus = null;
+  function openSheet(html, cls) {
+    closeSheet();
+    lastFocus = document.activeElement;
+    var b = document.createElement('div');
+    b.className = 'backdrop'; b.id = 'backdrop';
+    b.innerHTML = '<div class="sheet ' + (cls || '') + '" role="dialog" aria-modal="true">' + html + '</div>';
+    document.body.appendChild(b);
+    document.body.style.overflow = 'hidden';
+    var f = b.querySelector('input:not([type=hidden]),textarea,button');
+    if (f) setTimeout(function () { try { f.focus(); } catch (e) { } }, 40);
+  }
+  function closeSheet() {
+    var b = $('#backdrop');
+    if (b) b.remove();
+    document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) { try { lastFocus.focus(); } catch (e) { } }
+  }
+
+  /* ------------------------------------------------------------------ 복사 */
+  function copyText(text, btn) {
+    function ok() {
+      toast('복사했습니다');
+      if (btn) {
+        var old = btn.innerHTML;
+        btn.innerHTML = '✓ 복사됨';
+        setTimeout(function () { btn.innerHTML = old; }, 1300);
+      }
+    }
+    function fallback() {
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        var good = document.execCommand('copy');
+        ta.remove();
+        if (good) ok(); else toast('복사하지 못했습니다. 길게 눌러 선택해 주세요.');
+      } catch (e) { toast('복사하지 못했습니다. 길게 눌러 선택해 주세요.'); }
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(ok, fallback);
+    } else fallback();
+  }
+
+  /* ------------------------------------------------------------------ 데스크 */
+  var tFilter = 'open';
+  var pendingDelete = null;
+  var justDone = {};   // 방금 끝낸 일은 목록에서 바로 사라지지 않게 잠깐 남깁니다
+
+  function dueInfo(it) {
+    if (!it.due) return null;
+    var d = dayDiff(it.due, ymd());
+    if (d == null) return null;
+    if (d < 0) return { label: 'D+' + (-d), cls: 'over', order: -1000 + d };
+    if (d === 0) return { label: '오늘', cls: 'over', order: -999 };
+    if (d === 1) return { label: '내일', cls: 'due', order: -998 };
+    if (d <= 7) return { label: 'D-' + d, cls: 'due', order: d };
+    return { label: fmtShort(it.due), cls: '', order: d };
+  }
+  function catName(id) { var c = CATS.filter(function (x) { return x.id === id; })[0]; return c ? c.name : '기타'; }
+  function catIdx(id) { for (var i = 0; i < CATS.length; i++) if (CATS[i].id === id) return i; return 6; }
+
+  function sortItems(arr) {
+    return arr.slice().sort(function (a, b) {
+      if (!!a.done !== !!b.done) return a.done ? 1 : -1;
+      var da = a.due ? (dayDiff(a.due, ymd()) == null ? 900 : dayDiff(a.due, ymd())) : 900;
+      var db = b.due ? (dayDiff(b.due, ymd()) == null ? 900 : dayDiff(b.due, ymd())) : 900;
+      if (da !== db) return da - db;
+      return (b.at || '').localeCompare(a.at || '');
+    });
+  }
+
+  function deskStats() {
+    var open = S.items.filter(function (i) { return !i.done; });
+    var over = open.filter(function (i) { var d = dayDiff(i.due, ymd()); return d != null && d <= 0; });
+    var week = open.filter(function (i) { var d = dayDiff(i.due, ymd()); return d != null && d > 0 && d <= 7; });
+    return { open: open.length, over: over.length, week: week.length, done: S.items.length - open.length };
+  }
+
+  function renderDesk() {
+    var now = new Date();
+    var st = deskStats();
+    $('#deskDate').textContent = now.getFullYear() + '년 ' + (now.getMonth() + 1) + '월 ' + now.getDate() + '일 ' + WD[now.getDay()] + '요일';
+
+    $('#deskStats').innerHTML =
+      '<div class="stat"><b>' + st.open + '</b><span>미결</span></div>' +
+      '<div class="stat ' + (st.over ? 'bad' : '') + '"><b>' + st.over + '</b><span>오늘·지남</span></div>' +
+      '<div class="stat ' + (st.week ? 'warn' : '') + '"><b>' + st.week + '</b><span>이번 주</span></div>' +
+      '<div class="stat"><b>' + st.done + '</b><span>끝낸 일</span></div>';
+
+    $('#holdList').innerHTML = HOLD_PHRASES.map(function (p, i) {
+      return '<div class="holdrow"><span class="k">' + esc(p.k) + '</span><span class="t">' + esc(p.t) + '</span>' +
+        '<button class="copy-mini" data-act="copy-hold" data-i="' + i + '">복사</button></div>';
+    }).join('');
+
+    var fchips = [['open', '미완료'], ['all', '전체'], ['due', '오늘·지남'], ['week', '이번 주']];
+    $('#trackFilters').innerHTML = fchips.map(function (f) {
+      return '<button class="chip" data-act="tfilter" data-f="' + f[0] + '" aria-pressed="' + (tFilter === f[0]) + '">' + f[1] + '</button>';
+    }).join('');
+    renderTracker();
+
+    DAILY_CHECKS.forEach(function (g) {
+      var box = $('#ck-' + g.id);
+      if (!box) return;
+      var saved = (S.ck[ymd()] || []).filter(function (k) { return k.indexOf(g.id + ':') === 0; });
+      box.querySelector('.ckhead .pill').textContent = saved.length + ' / ' + g.items.length;
+      box.querySelector('.progress i').style.width = Math.round(saved.length / g.items.length * 100) + '%';
+      box.querySelector('.ckbody').innerHTML = g.items.map(function (t, i) {
+        var key = g.id + ':' + i;
+        return '<label class="check"><input type="checkbox" data-act="ck" data-k="' + key + '"' + (saved.indexOf(key) > -1 ? ' checked' : '') + '><span>' + esc(t) + '</span></label>';
+      }).join('');
+    });
+  }
+
+  function renderTracker() {
+    var arr = S.items.slice();
+    function keepDone(i) { return !i.done || justDone[i.id]; }
+    if (tFilter === 'open') arr = arr.filter(keepDone);
+    if (tFilter === 'due') arr = arr.filter(function (i) { if (!keepDone(i)) return false; var d = dayDiff(i.due, ymd()); return d != null && d <= 0; });
+    if (tFilter === 'week') arr = arr.filter(function (i) { if (!keepDone(i)) return false; var d = dayDiff(i.due, ymd()); return d != null && d > 0 && d <= 7; });
+    arr = sortItems(arr);
+    var host = $('#trackList');
+    if (!arr.length) {
+      host.innerHTML = '<div class="empty">' + (S.items.length ? '조건에 맞는 사안이 없습니다.' : '아직 적어 둔 사안이 없습니다.<br>머릿속에 남은 요청을 하나 적어 두면 퇴근이 가벼워집니다.') + '</div>';
+      return;
+    }
+    host.innerHTML = arr.map(function (it) {
+      var d = dueInfo(it);
+      var del = pendingDelete === it.id;
+      return '<div class="item' + (it.done ? ' done' : '') + '">' +
+        '<input type="checkbox" class="icheck" data-act="item-done" data-id="' + it.id + '"' + (it.done ? ' checked' : '') + ' aria-label="완료">' +
+        '<div class="body"><div class="ttl">' + esc(it.t) + '</div>' +
+        '<div class="meta">' +
+        '<span class="tag"><i class="catdot" style="background:var(--c' + catIdx(it.cat) + ')"></i>' + esc(catName(it.cat)) + '</span>' +
+        (d ? '<span class="pill ' + d.cls + '">' + d.label + '</span>' : '') +
+        (it.due ? '<span class="pill">' + fmtShort(it.due) + '</span>' : '') +
+        (it.who ? '<span class="pill">' + esc(it.who) + '</span>' : '') +
+        '</div>' +
+        (it.memo ? '<div class="memo">' + esc(it.memo) + '</div>' : '') +
+        (del ? '<div class="row" style="margin-top:8px"><span class="tiny" style="color:var(--danger)">삭제할까요?</span><button class="btn btn-sm btn-danger" data-act="item-del" data-id="' + it.id + '">삭제</button><button class="btn btn-sm btn-ghost" data-act="item-del-cancel">취소</button></div>' : '') +
+        '</div>' +
+        '<div class="acts">' +
+        '<button class="iconbtn" data-act="item-edit" data-id="' + it.id + '" aria-label="고치기">✎</button>' +
+        '<button class="iconbtn" data-act="item-askdel" data-id="' + it.id + '" aria-label="삭제">⌫</button>' +
+        '</div></div>';
+    }).join('');
+  }
+
+  function openItemForm(id) {
+    var it = id ? S.items.filter(function (x) { return x.id === id; })[0] : null;
+    var cur = it || { t: '', cat: 'gwanri', due: '', who: '', memo: '' };
+    var opts = CATS.map(function (c) { return '<option value="' + c.id + '"' + (cur.cat === c.id ? ' selected' : '') + '>' + c.name + '</option>'; }).join('') + '<option value="etc"' + (cur.cat === 'etc' ? ' selected' : '') + '>기타</option>';
+    openSheet(
+      '<div class="sheet-head"><h2>' + (it ? '사안 고치기' : '사안 적기') + '</h2><button class="iconbtn" data-act="close-sheet" aria-label="닫기">✕</button></div>' +
+      '<div class="sheet-body stack">' +
+      '<div class="field"><label for="ifT">무엇을 해야 하나</label><input id="ifT" class="input" placeholder="예: 6반 학부모 민원 답변 정리" value="' + esc(cur.t) + '"></div>' +
+      '<div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">' +
+      '<div class="field"><label for="ifCat">분류</label><select id="ifCat" class="select">' + opts + '</select></div>' +
+      '<div class="field"><label for="ifDue">기한</label><input id="ifDue" class="input" type="date" value="' + esc(cur.due || '') + '"></div>' +
+      '</div>' +
+      '<div class="field"><label for="ifWho">담당·기다리는 사람</label><input id="ifWho" class="input" placeholder="예: 나, ○○선생님, 교감선생님" value="' + esc(cur.who) + '"></div>' +
+      '<div class="field"><label for="ifMemo">메모 (선택)</label><textarea id="ifMemo" class="textarea" placeholder="연락 시각, 확인할 사람, 관련 공문 번호">' + esc(cur.memo) + '</textarea></div>' +
+      '<div class="row" style="justify-content:flex-end;margin-top:4px"><button class="btn btn-ghost" data-act="close-sheet">취소</button><button class="btn btn-primary" data-act="item-save" data-id="' + (it ? it.id : '') + '">저장</button></div>' +
+      '</div>'
+    );
+  }
+
+  function saveItemForm(id) {
+    var t = $('#ifT').value.trim();
+    if (!t) { toast('할 일을 한 줄 적어 주세요'); $('#ifT').focus(); return; }
+    var data = {
+      t: t, cat: $('#ifCat').value || 'etc', due: $('#ifDue').value || '',
+      who: $('#ifWho').value.trim(), memo: $('#ifMemo').value.trim()
+    };
+    if (id) {
+      S.items.forEach(function (x) { if (x.id === id) { Object.keys(data).forEach(function (k) { x[k] = data[k]; }); } });
+    } else {
+      data.id = uid('i'); data.done = false; data.at = new Date().toISOString();
+      S.items.unshift(data);
+    }
+    persist(); closeSheet(); renderDesk();
+    toast(id ? '고쳤습니다' : '적어 뒀습니다');
+  }
+
+  /* ------------------------------------------------------------------ 플레이북 */
+  var pbQuery = '', pbCat = 'all', pbRuleOnly = false;
+
+  function pbFiltered() {
+    var q = pbQuery.trim().toLowerCase();
+    return PLAYBOOKS.filter(function (p) {
+      if (pbCat !== 'all' && p.cat !== pbCat) return false;
+      if (pbRuleOnly && !p.rule) return false;
+      if (!q) return true;
+      var hay = [p.t, p.lead, p.crit, (p.steps || []).join(' '), (p.dont || []).join(' '), (p.msgs || []).map(function (m) { return m.t; }).join(' '), catName(p.cat)].join(' ').toLowerCase();
+      return q.split(/\s+/).filter(Boolean).every(function (tok) {
+        var cands = [tok].concat(SEARCH_ALIASES[tok] || []);
+        for (var i = 0; i < cands.length; i++) if (hay.indexOf(String(cands[i]).toLowerCase()) > -1) return true;
+        return false;
+      });
+    });
+  }
+  function pbCard(p) {
+    var notes = (S.notes[p.id] || []).length;
+    return '<button class="pb-card" data-act="open-pb" data-id="' + p.id + '">' +
+      '<div class="ct" style="color:var(--c' + catIdx(p.cat) + ')"><i class="catdot" style="background:var(--c' + catIdx(p.cat) + ')"></i>' + catName(p.cat) +
+      (p.rule ? '<span class="tag badge-rule">규정 우선</span>' : '') + '</div>' +
+      '<div class="tt">' + esc(p.t) + '</div>' +
+      '<div class="ld">' + esc(p.lead) + '</div>' +
+      '<div class="ft">문구 ' + (p.msgs || []).length + '개' + (notes ? '<span class="nt">· 내 사례 ' + notes + '</span>' : '') + '</div>' +
+      '</button>';
+  }
+  function renderPbList() {
+    var list = pbFiltered();
+    $('#pbList').innerHTML = list.length ? list.map(pbCard).join('') : '<div class="empty">해당하는 상황이 없습니다.<br>다른 단어로 찾거나 분류를 넓혀 보세요.</div>';
+    $('#pbCount').textContent = list.length + '개';
+  }
+  function renderPlaybook() {
+    $('#pbChips').innerHTML = '<button class="chip" data-act="pbcat" data-c="all" aria-pressed="' + (pbCat === 'all') + '">전체</button>' +
+      CATS.map(function (c) {
+        return '<button class="chip" data-act="pbcat" data-c="' + c.id + '" aria-pressed="' + (pbCat === c.id) + '"><i class="catdot" style="background:var(--c' + catIdx(c.id) + ')"></i>' + c.name + '</button>';
+      }).join('') +
+      '<button class="chip" data-act="pbrule" aria-pressed="' + pbRuleOnly + '">⚖ 규정 우선</button>';
+    $('#pbQ').value = pbQuery;
+    renderPbList();
+
+    $('#principleStrip').innerHTML = PRINCIPLES.map(function (p) {
+      return '<div class="pr-card"><b>' + esc(p.t) + '</b><span>' + esc(p.d) + '</span></div>';
+    }).join('');
+
+    $('#mindList').innerHTML = MINDSET.map(function (m) {
+      return '<div class="mind-item"><b>' + esc(m.t) + '</b><span>' + esc(m.d) + '</span></div>';
+    }).join('');
+
+    $('#talkRules').innerHTML = '<ol class="steps">' + SMALL_RULES.map(function (r, i) {
+      return '<li><span class="n">' + (i + 1) + '</span><span>' + esc(r) + '</span></li>';
+    }).join('') + '</ol>';
+
+    $('#talkChips').innerHTML = SMALLTALK.map(function (s, i) {
+      return '<button class="chip" data-act="talk-scene" data-i="' + i + '" aria-pressed="' + (i === 0) + '">' + esc(s.s) + '</button>';
+    }).join('');
+    renderTalk(0);
+    $('#avoid').textContent = AVOID_TOPICS;
+  }
+  function renderTalk(i) {
+    var s = SMALLTALK[i] || SMALLTALK[0];
+    $$('[data-act="talk-scene"]').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.i === i)); });
+    $('#talkBody').innerHTML =
+      '<p class="tiny" style="margin-bottom:8px">' + esc(s.note) + '</p>' +
+      '<div class="row" style="gap:6px">' + s.p.map(function (t) {
+        return '<button class="phrase-pill" data-act="copy-text" data-t="' + esc(t) + '">' + esc(t) + '<span class="faint">⧉</span></button>';
+      }).join('') + '</div>';
+  }
+
+  function openPlaybook(id) {
+    var p = PLAYBOOKS.filter(function (x) { return x.id === id; })[0];
+    if (!p) return;
+    var notes = S.notes[p.id] || [];
+    var body =
+      '<div class="sheet-head"><div style="flex:1"><div class="pb-meta" style="margin:0 0 6px">' +
+      '<span class="tag" style="color:var(--c' + catIdx(p.cat) + ')"><i class="catdot" style="background:var(--c' + catIdx(p.cat) + ')"></i>' + catName(p.cat) + '</span>' +
+      (p.rule ? '<span class="tag badge-rule">규정 우선 · 담당자 확인 먼저</span>' : '') +
+      '</div><h2>' + esc(p.t) + '</h2></div>' +
+      '<button class="iconbtn" data-act="close-sheet" aria-label="닫기">✕</button></div>' +
+      '<div class="sheet-body stack-lg">' +
+      '<p class="tiny" style="font-size:13px">' + esc(p.lead) + '</p>' +
+      '<div class="crit"><span class="lb">판단 기준</span><span>' + esc(p.crit) + '</span></div>' +
+      '<div><div class="section-label">판단 순서</div><ol class="steps">' + p.steps.map(function (s, i) {
+        return '<li><span class="n">' + (i + 1) + '</span><span>' + esc(s) + '</span></li>';
+      }).join('') + '</ol></div>' +
+      '<div class="dont"><span class="lb">초보가 자주 하는 실수 — 이건 하지 않습니다</span><ul>' + p.dont.map(function (d) { return '<li>' + esc(d) + '</li>'; }).join('') + '</ul></div>' +
+      '<div><div class="section-label">바로 보내는 문구</div>' + p.msgs.map(function (m, i) {
+        return '<div class="msg"><div class="mh"><span class="mk">' + esc(m.k) + '</span><button class="copy-mini" data-act="copy-msg" data-id="' + p.id + '" data-i="' + i + '">복사</button></div><div class="mt">' + esc(m.t) + '</div></div>';
+      }).join('') + '</div>' +
+      (MIND[p.id] ? '<div class="mind-note"><span class="lb">마음 세팅</span><p>' + esc(MIND[p.id][0]) + '</p><small>키우는 힘 · ' + esc(MIND[p.id][1]) + '</small></div>' : '') +
+      '<div class="note-sec"><div class="section-label">내 해결 사례</div>' +
+      '<div class="row" style="gap:6px;align-items:flex-start"><input id="noteInput" class="input" placeholder="한 줄로 남겨 두면 다음에 그대로 씁니다" style="flex:1"><button class="btn btn-sm btn-primary" data-act="note-save" data-id="' + p.id + '">남기기</button></div>' +
+      '<div class="nlist" id="noteList">' + (notes.length ? notes.map(function (n) {
+        return '<div class="note-item"><span>' + esc(n.text) + '</span><time>' + fmtStamp(n.at) + ' <button class="btn-quiet" data-act="note-del" data-id="' + p.id + '" data-at="' + esc(n.at) + '" aria-label="삭제">✕</button></time></div>';
+      }).join('') : '<div class="tiny faint">아직 없습니다. 오늘 처리한 일을 한 줄 남겨 보세요.</div>') + '</div></div>' +
+      '</div>';
+    openSheet(body);
+  }
+
+  function saveNote(id) {
+    var inp = $('#noteInput'), v = inp ? inp.value.trim() : '';
+    if (!v) { toast('한 줄 적어 주세요'); return; }
+    S.notes[id] = (S.notes[id] || []);
+    S.notes[id].unshift({ at: new Date().toISOString(), text: v });
+    if (S.notes[id].length > 60) S.notes[id] = S.notes[id].slice(0, 60);
+    persist(); inp.value = ''; openPlaybook(id);
+    if ($('#pbList')) renderPbList();
+    toast('남겼습니다');
+  }
+
+  /* ------------------------------------------------------------------ 회의 */
+  function draft() {
+    if (!S.mdraft) {
+      S.mdraft = { date: ymd(), name: '학년 협의회 결과', rows: [{ k: '확정', t: '', who: '', due: '' }], memo: '' };
+    }
+    if (!S.mdraft.rows || !S.mdraft.rows.length) S.mdraft.rows = [{ k: '확정', t: '', who: '', due: '' }];
+    return S.mdraft;
+  }
+  function renderMeeting() {
+    var d = draft();
+    $('#mDate').value = d.date || ymd();
+    $('#mName').value = d.name || '';
+    $('#mMemo').value = d.memo || '';
+    renderMRows();
+    var hasRows = d.rows.some(function (r) { return (r.t || '').trim(); });
+    $('#mPreview').value = hasRows ? buildNotice() : '';
+    renderMeetingList();
+    renderRoadmap();
+    renderAreas();
+  }
+  function renderMRows() {
+    var d = draft();
+    $('#mRows').innerHTML = d.rows.map(function (r, i) {
+      return '<div class="mrow" data-row="' + i + '">' +
+        '<select class="select" data-act="mrow-k" data-i="' + i + '"><option' + (r.k === '확정' ? ' selected' : '') + '>확정</option><option' + (r.k === '보류' ? ' selected' : '') + '>보류</option></select>' +
+        '<input class="input" data-act="mrow-t" data-i="' + i + '" placeholder="' + (r.k === '보류' ? '무엇을 왜 보류했나' : '정한 내용') + '" value="' + esc(r.t) + '">' +
+        '<input class="input" data-act="mrow-who" data-i="' + i + '" placeholder="담당" value="' + esc(r.who) + '">' +
+        '<input class="input" type="date" data-act="mrow-due" data-i="' + i + '" value="' + esc(r.due) + '" aria-label="기한">' +
+        '<button class="iconbtn delrow" data-act="mrow-del" data-i="' + i + '" aria-label="줄 지우기">✕</button>' +
+        '</div>';
+    }).join('');
+  }
+  function buildNotice() {
+    var d = draft();
+    var lines = [];
+    lines.push('[' + (d.name || '학년 협의회 결과') + '] ' + fmtKorean(d.date || ymd()));
+    lines.push('');
+    var done = d.rows.filter(function (r) { return r.k === '확정' && r.t.trim(); });
+    var hold = d.rows.filter(function (r) { return r.k === '보류' && r.t.trim(); });
+    if (done.length) {
+      lines.push('■ 확정');
+      done.forEach(function (r, i) {
+        var extra = [];
+        if (r.who.trim()) extra.push('담당 ' + r.who.trim());
+        if (r.due) extra.push('~' + fmtShort(r.due));
+        lines.push((i + 1) + '. ' + r.t.trim() + (extra.length ? ' (' + extra.join(', ') + ')' : ''));
+      });
+      lines.push('');
+    }
+    if (hold.length) {
+      lines.push('■ 보류');
+      hold.forEach(function (r) {
+        var extra = [];
+        if (r.who.trim()) extra.push('담당 ' + r.who.trim());
+        if (r.due) extra.push('다음 확인 ' + fmtShort(r.due));
+        lines.push('· ' + r.t.trim() + (extra.length ? ' — ' + extra.join(', ') : ''));
+      });
+      lines.push('');
+    }
+    if (!done.length && !hold.length) {
+      lines.push('· 오늘 정한 내용을 적어 주세요.');
+      lines.push('');
+    }
+    if (d.memo.trim()) { lines.push('■ 안내'); lines.push(d.memo.trim()); lines.push(''); }
+    lines.push('문의는 학년부장에게 주시면 됩니다.');
+    return lines.join('\n');
+  }
+  function renderMeetingList() {
+    var host = $('#mLog');
+    if (!S.meetings.length) { host.innerHTML = '<div class="empty">저장한 회의록이 없습니다.<br>확정 내용을 만들고 저장해 두면 다음 회의가 가벼워집니다.</div>'; return; }
+    host.innerHTML = S.meetings.map(function (m) {
+      var first = (m.text || '').split('\n').map(function (l) { return l.trim(); }).filter(function (l) {
+        return l && l.indexOf('[') !== 0 && l.indexOf('■') !== 0;
+      })[0] || '';
+      return '<div class="item"><div class="body"><div class="ttl">' + esc(fmtKorean(m.date)) + ' · ' + esc(m.name) + '</div>' +
+        '<div class="memo">' + esc(first.slice(0, 90)) + '</div></div>' +
+        '<div class="acts"><button class="btn btn-sm btn-ghost" data-act="m-view" data-id="' + m.id + '">보기</button>' +
+        '<button class="copy-mini" data-act="m-copy" data-id="' + m.id + '">복사</button>' +
+        '<button class="iconbtn" data-act="m-del" data-id="' + m.id + '" aria-label="삭제">⌫</button></div></div>';
+    }).join('');
+  }
+  function renderRoadmap() {
+    $('#roadmap').innerHTML = ROADMAP.map(function (ph) {
+      var items = ph.items.map(function (t, i) {
+        var key = ph.id + ':' + i;
+        return '<label class="check rcheck"><input type="checkbox" data-act="road" data-k="' + key + '"' + (S.road[key] ? ' checked' : '') + '><span>' + esc(t) + '</span></label>';
+      }).join('');
+      var n = ph.items.filter(function (_, i) { return S.road[ph.id + ':' + i]; }).length;
+      return '<div class="rm"><div class="when">' + esc(ph.when) + ' · ' + n + '/' + ph.items.length + '</div><b>' + esc(ph.t) + '</b>' + items + '</div>';
+    }).join('');
+  }
+  function renderAreas() {
+    $('#areas').innerHTML = AREAS.map(function (a) {
+      var st = (S.areas[a.id] && S.areas[a.id].st) || 'todo';
+      var memo = (S.areas[a.id] && S.areas[a.id].memo) || '';
+      var pill = st === 'done' ? '<span class="pill ok">완료</span>' : st === 'doing' ? '<span class="pill due">진행</span>' : '<span class="pill">미착수</span>';
+      return '<details class="area"><summary><span class="nm">' + esc(a.name) + (a.rule ? ' <span class="tag badge-rule">규정</span>' : '') + '</span>' + pill + '<span class="faint">▾</span></summary>' +
+        '<div class="abody"><div class="agrid">' +
+        '<div><b>먼저 확인</b><span>' + esc(a.check) + '</span></div>' +
+        '<div><b>도움받을 곳</b><span>' + esc(a.help) + '</span></div>' +
+        '<div><b>전달 방법</b><span>' + esc(a.deliver) + '</span></div>' +
+        '<div><b>조심할 것</b><span>' + esc(a.risk) + '</span></div>' +
+        '</div>' +
+        '<div class="row" style="margin-top:11px;justify-content:space-between"><span class="lbl">진행 상태</span><span class="statussel">' +
+        ['todo', 'doing', 'done'].map(function (k) {
+          var label = k === 'todo' ? '미착수' : k === 'doing' ? '진행' : '완료';
+          return '<button data-act="area-st" data-id="' + a.id + '" data-st="' + k + '" aria-pressed="' + (st === k) + '">' + label + '</button>';
+        }).join('') + '</span></div>' +
+        '<div class="field" style="margin-top:9px"><label for="am-' + a.id + '">내 메모</label><textarea id="am-' + a.id + '" class="textarea" style="min-height:56px" data-act="area-memo" data-id="' + a.id + '" placeholder="올해 우리 학년 상황, 확인한 사람, 결정한 기준">' + esc(memo) + '</textarea></div>' +
+        '</div></details>';
+    }).join('');
+  }
+
+  /* ------------------------------------------------------------------ 교육과정 */
+  var curOpen = { 1: true };
+  function curProgress() {
+    var total = 0, on = 0;
+    CUR_STEPS.forEach(function (s) { s.items.forEach(function (_, i) { total++; if (S.cur['s' + s.n + ':' + i]) on++; }); });
+    var hTotal = CUR_HANDOFF.length, hOn = CUR_HANDOFF.filter(function (_, i) { return S.cur['h:' + i]; }).length;
+    var fTotal = CUR_FINISH.length, fOn = CUR_FINISH.filter(function (_, i) { return S.cur['f:' + i]; }).length;
+    return { total: total + hTotal + fTotal, on: on + hOn + fOn, stepTotal: total, stepOn: on, hTotal: hTotal, hOn: hOn, fTotal: fTotal, fOn: fOn };
+  }
+  function renderCurric() {
+    var p = curProgress();
+    $('#curSummary').innerHTML =
+      '<div class="cur-stat"><b>' + p.on + ' / ' + p.total + '</b><span>전체 완료</span></div>' +
+      '<div class="cur-stat"><b>' + Math.round(p.stepOn / p.stepTotal * 100) + '%</b><span>1~8단계</span></div>' +
+      '<div class="cur-stat"><b>' + (S.cur['s!:0'] ? '확인' : '미확인') + '</b><span>단축수업 날짜</span></div>' +
+      '<div class="cur-stat"><b>' + p.hOn + ' / ' + p.hTotal + '</b><span>동학년 전달</span></div>';
+    $('#curBar').style.width = Math.round(p.on / p.total * 100) + '%';
+
+    $('#curSteps').innerHTML = CUR_STEPS.map(function (s) {
+      var key = 's' + s.n;
+      var n = s.items.filter(function (_, i) { return S.cur[key + ':' + i]; }).length;
+      var full = n === s.items.length;
+      var open = curOpen[String(s.n)] ? ' open' : '';
+      return '<details class="curstep' + (s.n === '!' ? ' is-bang' : '') + (full ? ' done' : '') + '" data-step="' + s.n + '"' + open + '>' +
+        '<summary><span class="curno">' + s.n + '</span><span class="cti"><b>' + esc(s.t) + (s.sub ? ' <span class="faint" style="font-weight:500">· ' + esc(s.sub) + '</span>' : '') + '</b>' +
+        (s.n === '!' ? '<small>3단계 다음에 확인 · 학년군 부장과 논의</small>' : '') + '</span>' +
+        '<span class="cprog">' + n + '/' + s.items.length + '</span><span class="faint">▾</span></summary>' +
+        '<div class="cbody">' + s.items.map(function (t, i) {
+          var k = key + ':' + i;
+          return '<label class="check"><input type="checkbox" data-act="cur" data-k="' + k + '"' + (S.cur[k] ? ' checked' : '') + '><span>' + esc(t) + '</span></label>';
+        }).join('') + (s.tip ? '<div class="curtip">' + esc(s.tip) + '</div>' : '') + (s.note ? '<div class="curtip">' + esc(s.note) + '</div>' : '') + '</div></details>';
+    }).join('');
+
+    $('#curPrinciples').innerHTML = CUR_PRINCIPLES.map(function (pr, i) {
+      return '<div class="card" style="padding:14px"><div class="pb-meta" style="margin-bottom:6px"><span class="tag">원칙 ' + (i + 1) + '</span></div><b style="font-size:13.5px;letter-spacing:-.02em">' + esc(pr.t) + '</b><p class="tiny" style="margin-top:5px;white-space:pre-line">' + esc(pr.d) + '</p></div>';
+    }).join('');
+
+    $('#curHandoff').innerHTML = CUR_HANDOFF.map(function (t, i) {
+      var k = 'h:' + i;
+      return '<label class="check"><input type="checkbox" data-act="cur" data-k="' + k + '"' + (S.cur[k] ? ' checked' : '') + '><span>' + esc(t) + '</span></label>';
+    }).join('');
+
+    $('#curFinish').innerHTML = CUR_FINISH.map(function (t, i) {
+      var k = 'f:' + i;
+      return '<label class="check"><input type="checkbox" data-act="cur" data-k="' + k + '"' + (S.cur[k] ? ' checked' : '') + '><span>' + esc(t) + ' 확인</span></label>';
+    }).join('');
+
+    var url = S.docUrl || '';
+    $('#curSheetUrl').value = url;
+    $('#curSheetSaved').innerHTML = url
+      ? '<span class="tag">저장됨</span><a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(url.replace(/^https?:\/\//, '').slice(0, 60)) + '</a>'
+      : '<span class="tiny faint">아직 연결한 링크가 없습니다. 학년 활동별 시간표 시트 주소를 붙여 넣으면 여기서 바로 열 수 있습니다.</span>';
+  }
+
+  /* ------------------------------------------------------------------ 설정 */
+  function renderSettings() {
+    var auto = lsGet(AUTO_KEY, '1') !== '0' && urlOk(S.sheetUrl);
+    $('#sUrl').value = S.sheetUrl || '';
+    $('#sAuto').setAttribute('aria-checked', String(auto));
+    $('#sStatus').textContent = statusText;
+    $('#sStatus').className = 'st ' + statusKind;
+
+    var snaps = getSnaps();
+    $('#snapList').innerHTML = snaps.length ? snaps.map(function (s, i) {
+      var count = (s.data && s.data.items ? s.data.items.length : 0);
+      return '<div class="snap"><span class="kind">' + (s.kind === 'auto' ? '자동' : '수동') + '</span><time>' + fmtStamp(s.at) + ' · 사안 ' + count + '개</time>' +
+        '<button class="btn btn-sm btn-ghost" data-act="snap-restore" data-i="' + i + '">되돌리기</button>' +
+        '<button class="iconbtn" data-act="snap-del" data-i="' + i + '" aria-label="지우기">⌫</button></div>';
+    }).join('') : '<div class="tiny faint">스냅샷이 없습니다. 오늘 상태를 한 번 저장해 두세요.</div>';
+    $$('[data-act="theme"]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.theme === themePref())); });
+  }
+
+  /* ------------------------------------------------------------------ 스냅샷 */
+  function getSnaps() {
+    try { var v = JSON.parse(localStorage.getItem(LS_SNAP) || '[]'); return v instanceof Array ? v : []; } catch (e) { return []; }
+  }
+  function snapNow(kind) {
+    var snaps = getSnaps();
+    snaps.unshift({ at: new Date().toISOString(), kind: kind || 'manual', data: JSON.parse(JSON.stringify(S)) });
+    snaps = snaps.slice(0, 5);
+    lsSet(LS_SNAP, JSON.stringify(snaps));
+  }
+  function autoSnapOnceADay() {
+    var snaps = getSnaps();
+    var today = ymd();
+    var has = snaps.some(function (s) { return s.kind === 'auto' && s.at.slice(0, 10) === today; });
+    if (!has && (S.items.length || S.meetings.length || Object.keys(S.notes).length)) snapNow('auto');
+  }
+  function restoreSnap(i) {
+    var snaps = getSnaps(), s = snaps[i];
+    if (!s || !s.data) return;
+    snapNow('auto');
+    S = Object.assign(blank(), s.data);
+    persist({ silent: true });
+    closeSheet(); renderAll(); toast('되돌렸습니다 · 되돌리기 전 상태도 저장해 뒀습니다');
+  }
+
+  /* ------------------------------------------------------------------ 동기화 */
+  var statusText = '', statusKind = '';
+  function setSyncStatus(msg, kind) {
+    statusText = msg; statusKind = kind || '';
+    var el = $('#sStatus');
+    if (el) { el.textContent = msg; el.className = 'st ' + (kind || ''); }
+    var rail = $('#railSync');
+    if (rail) {
+      rail.className = 'sync ' + (kind === 'ok' ? 'on' : kind === 'err' ? 'err' : '');
+      rail.querySelector('span').textContent = msg || '자동 동기화 꺼짐';
+    }
+  }
+  function urlOk(u) {
+    if (!u) return false;
+    if (/^https:\/\//i.test(u)) return true;
+    return /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?\//i.test(u);
+  }
+  function autoEnabled() { return lsGet(AUTO_KEY, '1') !== '0' && urlOk(S.sheetUrl); }
+  function localLastTs() { return Math.max(tsOf(lsGet(LAST_KEY, '')), tsOf(lsGet(EDIT_KEY, ''))); }
+  function stateEmpty() {
+    var notes = Object.keys(S.notes || {}).filter(function (k) { return (S.notes[k] || []).length; });
+    var cur = Object.keys(S.cur || {}).filter(function (k) { return S.cur[k]; });
+    return !S.items.length && !S.meetings.length && !notes.length && !cur.length;
+  }
+  function callSheet(url, payload) {
+    return fetch(url, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload), redirect: 'follow'
+    }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function (t) {
+      var d;
+      try { d = JSON.parse(t); } catch (e) { throw new Error('응답을 읽지 못했습니다. 배포 주소(/exec)와 액세스 권한(모든 사용자)을 확인하세요.'); }
+      if (d && d.ok === false) throw new Error(d.error || '시트 쪽에서 거부했습니다.');
+      return d;
+    });
+  }
+
+  var pushTimer = null, pushing = false, pulling = false, pendingPush = false, retries = 0, applying = false, lastPullAt = 0;
+  function markEdit() {
+    if (applying) return;
+    lsSet(EDIT_KEY, new Date().toISOString());
+    if (!autoEnabled()) return;
+    pendingPush = true;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(pushAuto, PUSH_DELAY);
+  }
+  function pushAuto(force) {
+    if (!force && !autoEnabled()) return;
+    if (pushing || pulling) {
+      if (!force) { clearTimeout(pushTimer); pushTimer = setTimeout(pushAuto, 800); }
+      return;
+    }
+    if (stateEmpty()) { setSyncStatus('기록이 없어 시트로 보내지 않았습니다.', ''); return; }
+    pushing = true; pendingPush = false;
+    var at = new Date().toISOString();
+    setSyncStatus('동기화 중…', '');
+    var payload = { action: 'save', app: APP_NAME, version: 2, savedAt: at, data: S };
+    callSheet(S.sheetUrl, payload).then(function (d) {
+      pushing = false; retries = 0;
+      var savedAt = (d && (d.savedAt || d.updatedAt)) || at;
+      lsSet(LAST_KEY, savedAt);
+      setSyncStatus('자동 저장됨 · ' + fmtStamp(savedAt), 'ok');
+      if (pendingPush) { pendingPush = false; clearTimeout(pushTimer); pushTimer = setTimeout(pushAuto, 600); }
+    }).catch(function (err) {
+      pushing = false;
+      var m = (err && err.message) || '알 수 없는 오류';
+      var offline = navigator.onLine === false || /Failed to fetch|NetworkError|Load failed|timeout/i.test(m);
+      setSyncStatus((offline ? '오프라인 · 기기에 저장됨' : '동기화 실패: ' + m), 'err');
+      if (retries < 3) { retries++; clearTimeout(pushTimer); pushTimer = setTimeout(pushAuto, 5000 * retries); }
+    });
+  }
+  function pullIfNewer(opts) {
+    opts = opts || {};
+    if ((!opts.force && !autoEnabled()) || pulling || pushing) return Promise.resolve(false);
+    if (!urlOk(S.sheetUrl)) return Promise.resolve(false);
+    if (!opts.force && document.getElementById('backdrop')) return Promise.resolve(false);  // 입력 중에는 화면을 갈아엎지 않습니다
+    var now = Date.now();
+    if (opts.ignoreGap !== true && now - lastPullAt < PULL_GAP) return Promise.resolve(false);
+    lastPullAt = now;
+    pulling = true;
+    return callSheet(S.sheetUrl, { action: 'load' }).then(function (d) {
+      pulling = false;
+      var inc = d && d.data;
+      if (!inc || typeof inc !== 'object') { setSyncStatus('시트에 저장된 기록이 없습니다.', ''); return false; }
+      var remoteAt = d.savedAt || d.updatedAt || inc.updatedAt || '';
+      var rt = tsOf(remoteAt);
+      if (!rt || rt <= localLastTs() + SKEW) return false;
+      var remoteEmpty = !(inc.items || []).length && !(inc.meetings || []).length;
+      if (remoteEmpty && !stateEmpty()) { setSyncStatus('시트가 비어 있어 이 기기 기록을 그대로 두었습니다.', ''); return false; }
+      var same = JSON.stringify(normalizeState(inc)) === JSON.stringify(normalizeState(S));
+      lsSet(LAST_KEY, remoteAt);
+      if (same) { setSyncStatus('시트가 이미 최신입니다.', 'ok'); return false; }
+      applying = true;
+      try { S = normalizeState(inc); persist({ silent: true }); } finally { applying = false; }
+      lsSet(EDIT_KEY, remoteAt);
+      renderAll();
+      setSyncStatus('시트에서 불러왔습니다 · ' + fmtStamp(remoteAt), 'ok');
+      toast('다른 기기의 기록을 불러왔습니다');
+      return true;
+    }).catch(function (err) {
+      pulling = false;
+      setSyncStatus('시트 확인 실패: ' + ((err && err.message) || '') + ' · 기기 기록은 그대로입니다.', 'err');
+      return false;
+    });
+  }
+  function normalizeState(o) {
+    var b = blank();
+    Object.keys(b).forEach(function (k) {
+      if (o && o[k] !== undefined && o[k] !== null) b[k] = o[k];
+    });
+    if (!(b.items instanceof Array)) b.items = [];
+    if (!(b.meetings instanceof Array)) b.meetings = [];
+    return b;
+  }
+
+  /* ------------------------------------------------------------------ 내보내기/가져오기 */
+  function exportJson() {
+    var payload = { app: APP_NAME, version: 2, exportedAt: new Date().toISOString(), data: S };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'bujang-chammo-' + ymd() + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 3000);
+    toast('파일로 내보냈습니다');
+  }
+  function importJson(file) {
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var o = JSON.parse(String(r.result));
+        var data = o && o.data ? o.data : o;
+        if (!data || typeof data !== 'object' || !(data.items instanceof Array || data.meetings instanceof Array || data.cur)) throw new Error('형식이 다릅니다');
+        snapNow('auto');
+        S = normalizeState(data);
+        persist({ silent: true });
+        renderAll();
+        toast('불러왔습니다');
+      } catch (e) { toast('불러오지 못했습니다. 이 앱에서 내보낸 파일인지 확인해 주세요.'); }
+    };
+    r.readAsText(file);
+  }
+
+  /* ------------------------------------------------------------------ 탭 */
+  var currentTab = 'desk';
+  function setTab(name) {
+    currentTab = name;
+    ['desk', 'playbook', 'meeting', 'curric', 'settings'].forEach(function (t) {
+      var v = $('#view-' + t);
+      if (v) v.hidden = t !== name;
+    });
+    $$('[data-act="tab"]').forEach(function (b) {
+      if (b.dataset.tab === name) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    if (name === 'desk') renderDesk();
+    if (name === 'playbook') renderPlaybook();
+    if (name === 'meeting') renderMeeting();
+    if (name === 'curric') renderCurric();
+    if (name === 'settings') renderSettings();
+    window.scrollTo(0, 0);
+    try { history.replaceState(null, '', '#' + name); } catch (e) { }
+  }
+  function renderAll() {
+    renderDesk(); renderPlaybook(); renderMeeting(); renderCurric(); renderSettings();
+  }
+
+  /* ------------------------------------------------------------------ 이벤트 */
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-act]');
+    if (!t) return;
+    var act = t.dataset.act;
+
+    if (act === 'tab') { setTab(t.dataset.tab); return; }
+    if (act === 'theme') { lsSet(LS_THEME, t.dataset.theme); applyTheme(); return; }
+    if (act === 'theme-cycle') {
+      var order = ['auto', 'light', 'dark'];
+      var nx = order[(order.indexOf(themePref()) + 1) % 3];
+      lsSet(LS_THEME, nx); applyTheme();
+      toast(nx === 'auto' ? '기기 설정을 따릅니다' : nx === 'light' ? '밝게 고정' : '어둡게 고정');
+      return;
+    }
+    if (act === 'talk-random') {
+      var all = [];
+      SMALLTALK.forEach(function (s) { s.p.forEach(function (p) { all.push([s.s, p]); }); });
+      var pick = all[Math.floor(Math.random() * all.length)];
+      $('#talkRand').innerHTML = '<span class="faint">' + esc(pick[0]) + '</span> · ' + esc(pick[1]) +
+        ' <button class="copy-mini" data-act="copy-text" data-t="' + esc(pick[1]) + '">복사</button>';
+      return;
+    }
+    if (act === 'close-sheet') { closeSheet(); return; }
+    if (t.id === 'backdrop') { closeSheet(); return; }
+
+    if (act === 'copy-hold') { copyText(HOLD_PHRASES[+t.dataset.i].t, t); return; }
+    if (act === 'copy-text') { copyText(t.dataset.t || '', t); return; }
+    if (act === 'copy-msg') {
+      var pb = PLAYBOOKS.filter(function (x) { return x.id === t.dataset.id; })[0];
+      if (pb) copyText(pb.msgs[+t.dataset.i].t, t);
+      return;
+    }
+
+    if (act === 'tfilter') { tFilter = t.dataset.f; justDone = {}; renderDesk(); return; }
+    if (act === 'item-new') { openItemForm(null); return; }
+    if (act === 'item-edit') { openItemForm(t.dataset.id); return; }
+    if (act === 'item-save') { saveItemForm(t.dataset.id); return; }
+    if (act === 'item-askdel') { pendingDelete = t.dataset.id; renderTracker(); return; }
+    if (act === 'item-del-cancel') { pendingDelete = null; renderTracker(); return; }
+    if (act === 'item-del') {
+      S.items = S.items.filter(function (x) { return x.id !== t.dataset.id; });
+      pendingDelete = null; persist(); renderDesk(); toast('지웠습니다'); return;
+    }
+
+    if (act === 'pbcat') { pbCat = t.dataset.c; renderPlaybook(); return; }
+    if (act === 'pbrule') { pbRuleOnly = !pbRuleOnly; renderPlaybook(); return; }
+    if (act === 'open-pb') { openPlaybook(t.dataset.id); return; }
+    if (act === 'note-save') { saveNote(t.dataset.id); return; }
+    if (act === 'note-del') {
+      var id = t.dataset.id, at = t.dataset.at;
+      S.notes[id] = (S.notes[id] || []).filter(function (n) { return n.at !== at; });
+      persist(); if ($('#pbList')) renderPbList(); openPlaybook(id); return;
+    }
+    if (act === 'talk-scene') { renderTalk(+t.dataset.i); return; }
+
+    if (act === 'mrow-del') { var d0 = draft(); d0.rows.splice(+t.dataset.i, 1); if (!d0.rows.length) d0.rows.push({ k: '확정', t: '', who: '', due: '' }); persist(); renderMRows(); return; }
+    if (act === 'mrow-add') {
+      draft().rows.push({ k: '확정', t: '', who: '', due: '' }); persist(); renderMRows();
+      var ins = $$('#mRows [data-act="mrow-t"]'); if (ins.length) ins[ins.length - 1].focus();
+      return;
+    }
+    if (act === 'm-gen') { $('#mPreview').value = buildNotice(); toast('문구를 만들었습니다'); return; }
+    if (act === 'm-copy') {
+      var text = t.dataset.id ? (S.meetings.filter(function (m) { return m.id === t.dataset.id; })[0] || {}).text : $('#mPreview').value;
+      if (text) copyText(text, t); return;
+    }
+    if (act === 'm-save') {
+      var dv = draft();
+      var txt = $('#mPreview').value || buildNotice();
+      var has = dv.rows.some(function (r) { return r.t.trim(); });
+      if (!has) { toast('정한 내용을 먼저 적어 주세요'); return; }
+      S.meetings.unshift({ id: uid('m'), date: dv.date, name: dv.name || '학년 협의회 결과', text: txt, rows: JSON.parse(JSON.stringify(dv.rows)), memo: dv.memo, at: new Date().toISOString() });
+      if (S.meetings.length > 100) S.meetings = S.meetings.slice(0, 100);
+      persist(); renderMeetingList(); toast('회의록에 저장했습니다'); return;
+    }
+    if (act === 'm-view') {
+      var mm = S.meetings.filter(function (m) { return m.id === t.dataset.id; })[0];
+      if (!mm) return;
+      openSheet('<div class="sheet-head"><h2>' + esc(fmtKorean(mm.date)) + ' · ' + esc(mm.name) + '</h2><button class="iconbtn" data-act="close-sheet">✕</button></div>' +
+        '<div class="sheet-body"><textarea class="notice-preview" readonly>' + esc(mm.text) + '</textarea>' +
+        '<div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn btn-primary" data-act="m-copy" data-id="' + mm.id + '">복사</button></div></div>');
+      return;
+    }
+    if (act === 'm-del') {
+      S.meetings = S.meetings.filter(function (m) { return m.id !== t.dataset.id; });
+      persist(); renderMeetingList(); toast('지웠습니다'); return;
+    }
+    if (act === 'area-st') {
+      var aid = t.dataset.id;
+      S.areas[aid] = S.areas[aid] || {};
+      S.areas[aid].st = t.dataset.st;
+      persist();
+      var det = t.closest('details');
+      if (det) {
+        $$('[data-act="area-st"]', det).forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.st === t.dataset.st)); });
+        var pil = det.querySelector('summary .pill');
+        if (pil) {
+          pil.textContent = t.dataset.st === 'done' ? '완료' : t.dataset.st === 'doing' ? '진행' : '미착수';
+          pil.className = 'pill ' + (t.dataset.st === 'done' ? 'ok' : t.dataset.st === 'doing' ? 'due' : '');
+        }
+      }
+      return;
+    }
+
+    if (act === 'cur-reset') {
+      if (t.dataset.confirm === '1') { S.cur = {}; persist(); renderCurric(); toast('체크를 모두 지웠습니다'); }
+      else { t.dataset.confirm = '1'; t.textContent = '한 번 더 누르면 지웁니다'; setTimeout(function () { t.dataset.confirm = ''; t.textContent = '체크 모두 지우기'; }, 3000); }
+      return;
+    }
+    if (act === 'cur-sheet-save') {
+      var u = $('#curSheetUrl').value.trim();
+      if (u && !urlOk(u)) { toast('https:// 주소를 넣어 주세요'); return; }
+      S.docUrl = u; persist(); renderCurric(); toast(u ? '링크를 저장했습니다' : '링크를 지웠습니다'); return;
+    }
+
+    if (act === 'snap-now') { snapNow('manual'); renderSettings(); toast('스냅샷을 저장했습니다'); return; }
+    if (act === 'snap-restore') {
+      var si = +t.dataset.i;
+      openSheet('<div class="sheet-head"><h2>이 상태로 되돌릴까요?</h2><button class="iconbtn" data-act="close-sheet">✕</button></div>' +
+        '<div class="sheet-body stack"><p class="tiny">되돌리면 지금 상태는 자동으로 한 번 더 저장됩니다. 최근 5개까지만 남습니다.</p>' +
+        '<div class="row" style="justify-content:flex-end"><button class="btn btn-ghost" data-act="close-sheet">취소</button><button class="btn btn-primary" data-act="snap-do" data-i="' + si + '">되돌리기</button></div></div>');
+      return;
+    }
+    if (act === 'snap-do') { restoreSnap(+t.dataset.i); return; }
+    if (act === 'snap-del') {
+      var snaps = getSnaps(); snaps.splice(+t.dataset.i, 1); lsSet(LS_SNAP, JSON.stringify(snaps)); renderSettings(); return;
+    }
+    if (act === 'export') { exportJson(); return; }
+    if (act === 'import-click') { $('#importFile').click(); return; }
+    if (act === 'sync-toggle') {
+      if (!urlOk(S.sheetUrl)) { setSyncStatus('먼저 Apps Script 주소를 저장해 주세요.', 'err'); toast('주소를 먼저 저장해 주세요'); return; }
+      var nowAuto = lsGet(AUTO_KEY, '1') !== '0';
+      lsSet(AUTO_KEY, nowAuto ? '0' : '1');
+      renderSettings();
+      if (!nowAuto) { pullIfNewer({ ignoreGap: true }); }
+      return;
+    }
+    if (act === 'sync-save-url') {
+      var su = $('#sUrl').value.trim();
+      if (su && !urlOk(su)) { setSyncStatus('https:// 로 시작하는 Apps Script 웹 앱 주소를 넣어 주세요.', 'err'); return; }
+      S.sheetUrl = su; persist({ silent: true });
+      if (!su) setSyncStatus('주소를 지웠습니다.', '');
+      else { setSyncStatus('연결 확인 중…', ''); pullIfNewer({ ignoreGap: true }); }
+      return;
+    }
+    if (act === 'sync-push') {
+      if (!urlOk(S.sheetUrl)) { setSyncStatus('먼저 웹 앱 주소를 저장해 주세요.', 'err'); return; }
+      if (stateEmpty()) { setSyncStatus('기록이 없어 보내지 않았습니다.', ''); return; }
+      pushAuto(true); return;
+    }
+    if (act === 'sync-pull') {
+      if (!urlOk(S.sheetUrl)) { setSyncStatus('먼저 웹 앱 주소를 저장해 주세요.', 'err'); return; }
+      pullIfNewer({ ignoreGap: true, force: true }).then(function (did) { if (!did) toast('시트가 이 기기보다 새롭지 않습니다'); });
+      return;
+    }
+    if (act === 'wipe') {
+      if (t.dataset.confirm === '1') {
+        snapNow('auto'); S = blank(); persist({ silent: true }); renderAll(); closeSheet(); toast('모두 지웠습니다 · 스냅샷에서 되돌릴 수 있습니다');
+      } else {
+        openSheet('<div class="sheet-head"><h2>기록을 모두 지울까요?</h2><button class="iconbtn" data-act="close-sheet">✕</button></div>' +
+          '<div class="sheet-body stack"><p class="tiny">이 기기의 사안·회의록·사례 노트·체크가 모두 지워집니다. 지우기 전 상태는 스냅샷에 저장됩니다. 구글 시트에 백업이 있으면 설정에서 다시 불러올 수 있습니다.</p>' +
+          '<div class="row" style="justify-content:flex-end"><button class="btn btn-ghost" data-act="close-sheet">취소</button><button class="btn btn-danger" data-act="wipe" data-confirm="1">모두 지우기</button></div></div>');
+      }
+      return;
+    }
+  });
+
+  document.addEventListener('change', function (e) {
+    var t = e.target.closest('[data-act]');
+    if (!t) return;
+    var act = t.dataset.act;
+    if (act === 'ck') {
+      var day = ymd();
+      S.ck[day] = S.ck[day] || [];
+      var i = S.ck[day].indexOf(t.dataset.k);
+      if (t.checked && i < 0) S.ck[day].push(t.dataset.k);
+      if (!t.checked && i > -1) S.ck[day].splice(i, 1);
+      persist(); renderDesk(); return;
+    }
+    if (act === 'item-done') {
+      S.items.forEach(function (x) {
+        if (x.id !== t.dataset.id) return;
+        x.done = t.checked; x.doneAt = t.checked ? new Date().toISOString() : '';
+        if (t.checked) justDone[x.id] = 1; else delete justDone[x.id];
+      });
+      persist(); renderDesk(); return;
+    }
+    if (act === 'cur') {
+      S.cur[t.dataset.k] = t.checked;
+      if (!t.checked) delete S.cur[t.dataset.k];
+      persist(); renderCurric(); return;
+    }
+    if (act === 'road') {
+      if (t.checked) S.road[t.dataset.k] = true; else delete S.road[t.dataset.k];
+      persist(); renderRoadmap(); return;
+    }
+    if (act === 'area-memo') {
+      var aid = t.dataset.id;
+      S.areas[aid] = S.areas[aid] || {};
+      S.areas[aid].memo = t.value;
+      persist({ silent: true });
+      markEdit();
+      return;
+    }
+    if (act === 'mrow-k' || act === 'mrow-t' || act === 'mrow-who' || act === 'mrow-due') {
+      var d = draft(), row = d.rows[+t.dataset.i];
+      if (!row) return;
+      if (act === 'mrow-k') row.k = t.value;
+      if (act === 'mrow-t') row.t = t.value;
+      if (act === 'mrow-who') row.who = t.value;
+      if (act === 'mrow-due') row.due = t.value;
+      persist({ silent: true });
+      if (act === 'mrow-k') renderMRows();
+      return;
+    }
+    if (act === 'm-date') { draft().date = t.value; persist({ silent: true }); return; }
+    if (act === 'm-name') { draft().name = t.value; persist({ silent: true }); return; }
+    if (act === 'm-memo') { draft().memo = t.value; persist({ silent: true }); return; }
+    if (act === 'import-file') { if (t.files && t.files[0]) importJson(t.files[0]); t.value = ''; return; }
+  });
+
+  document.addEventListener('input', function (e) {
+    var t = e.target.closest('[data-act]');
+    if (t && t.dataset.act === 'pbq') { pbQuery = t.value; renderPbList(); }
+    if (t && t.dataset.act === 'm-date-in') { draft().date = t.value; }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeSheet();
+  });
+
+  document.addEventListener('toggle', function (e) {
+    var d = e.target && e.target.closest ? e.target.closest('.curstep') : null;
+    if (d) curOpen[d.dataset.step] = d.open;
+  }, true);
+
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'backdrop') closeSheet();
+  });
+
+  /* ------------------------------------------------------------------ 시작 */
+  function bindDaily() {
+    DAILY_CHECKS.forEach(function (g) {
+      var host = $('#ck-' + g.id);
+      if (!host) return;
+      host.innerHTML =
+        '<div class="ckhead"><div style="flex:1"><h3>' + esc(g.title) + '</h3><small>' + esc(g.sub) + '</small></div><span class="pill">0 / ' + g.items.length + '</span></div>' +
+        '<div class="progress"><i></i></div><div class="ckbody" style="margin-top:6px"></div>';
+    });
+  }
+
+  function boot() {
+    applyTheme();
+    bindDaily();
+    autoSnapOnceADay();
+
+    if (S.sheetUrl) setSyncStatus(autoEnabled() ? '자동 동기화 켜짐' : '자동 동기화 꺼짐', autoEnabled() ? 'ok' : '');
+    else setSyncStatus('자동 동기화 꺼짐 — 설정에서 연결', '');
+
+    var h = (location.hash || '').replace('#', '');
+    setTab(['desk', 'playbook', 'meeting', 'curric', 'settings'].indexOf(h) > -1 ? h : 'desk');
+    renderAll();
+
+    if (autoEnabled()) {
+      setTimeout(function () { pullIfNewer({ ignoreGap: true }); }, 700);
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) pullIfNewer({});
+      });
+      window.addEventListener('focus', function () { pullIfNewer({}); });
+    }
+    window.addEventListener('online', function () { if (autoEnabled()) { pushAuto(); } });
+
+    if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+      navigator.serviceWorker.register('sw.js').catch(function () { });
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+
+</script>
+</body>
+</html>

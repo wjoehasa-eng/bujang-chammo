@@ -1,0 +1,24 @@
+{
+  "name": "부장 참모 — 학년부장 실전 데스크",
+  "short_name": "부장 참모",
+  "description": "처음 맡은 학년부장을 위한 실전 데스크. 즉답 보류, 미결 사안 트래커, 상황별 판단 순서와 완성 문구, 회의 확정 공지, 이지에듀 편성 체크리스트.",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f1f4f5",
+  "theme_color": "#123f5a",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "실전 플레이북", "url": "./index.html#playbook" },
+    { "name": "회의 확정 공지", "url": "./index.html#meeting" },
+    { "name": "교육과정 편성", "url": "./index.html#curric" }
+  ]
+}
