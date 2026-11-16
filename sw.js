@@ -1,6 +1,6 @@
 /* 부장 참모 — 오프라인 캐시
    앱을 새로 올릴 때는 아래 VERSION 숫자를 하나 올리면 됩니다. */
-var VERSION = 'v2.0.0';
+var VERSION = 'v3.0.0';
 var CACHE = 'bujang-chammo-' + VERSION;
 var SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
